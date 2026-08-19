@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "metrics": [
+    {
+      "slug": "bodyweight",
+      "name": "Bodyweight",
+      "unit": "lb",
+      "direction": "into_band",
+      "sort_order": 0,
+      "target": { "type": "static", "floor": 155, "ceiling": 165 }
+    },
+    {
+      "slug": "sleep-duration",
+      "name": "Sleep duration",
+      "unit": "h",
+      "direction": "into_band",
+      "sort_order": 1,
+      "target": { "type": "static", "floor": 7, "ceiling": 9 }
+    },
+    {
+      "slug": "protein",
+      "name": "Protein intake",
+      "unit": "g",
+      "direction": "into_band",
+      "sort_order": 2,
+      "target": {
+        "type": "derived_protein",
+        "g_per_lb": 1.0,
+        "ceiling_offset": 30,
+        "floor": 160,
+        "ceiling": 190,
+        "source_weight_lb": null,
+        "computed_at": null
+      }
+    },
+    {
+      "slug": "training-days",
+      "name": "Training days",
+      "unit": "days",
+      "direction": "into_band",
+      "sort_order": 3,
+      "target": { "type": "static", "floor": 4, "ceiling": 6 }
+    },
+    {
+      "slug": "readiness",
+      "name": "Morning readiness",
+      "unit": "/10",
+      "direction": "up",
+      "sort_order": 4,
+      "target": { "type": "static", "floor": 6, "ceiling": 10 }
+    }
+  ]
+}

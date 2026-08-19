@@ -1,0 +1,80 @@
+{
+  "version": "1.0.0",
+  "habits": [
+    {
+      "slug": "training-adherence",
+      "name": "Training adherence",
+      "sort_order": 0,
+      "decay_window_days": 3,
+      "advance_rule": "Complete the day's rotation session.",
+      "floor_action": "Log any single set.",
+      "config": { "auto": "session_finished" },
+      "state_meanings": {
+        "build": "Progressing through the rotation on schedule.",
+        "hold": "Keeping session frequency steady without pushing load.",
+        "recover": "Reduced demand; floor sessions count fully.",
+        "dormant": "Paused. History kept; resume any time."
+      }
+    },
+    {
+      "slug": "protein-target",
+      "name": "Protein target",
+      "sort_order": 1,
+      "decay_window_days": 2,
+      "advance_rule": "End the day at or above the protein floor.",
+      "floor_action": "Log one protein-anchored meal.",
+      "config": { "auto": "protein_floor_met" },
+      "state_meanings": {
+        "build": "Hitting the derived protein floor most days.",
+        "hold": "Keeping intake near the floor without chasing the ceiling.",
+        "recover": "One protein-anchored meal a day counts.",
+        "dormant": "Paused. History kept; resume any time."
+      }
+    },
+    {
+      "slug": "sleep-timing",
+      "name": "Sleep timing",
+      "sort_order": 2,
+      "decay_window_days": 3,
+      "advance_rule": "In bed within 30 minutes of the target bedtime.",
+      "floor_action": "Set an alarm to start wind-down.",
+      "config": { "auto": "bed_time_within_window", "target_bed_time": "23:00", "window_min": 30 },
+      "state_meanings": {
+        "build": "Bedtime landing inside the window most nights.",
+        "hold": "Holding the current bedtime steady.",
+        "recover": "Any earlier-than-yesterday bedtime counts.",
+        "dormant": "Paused. History kept; resume any time."
+      }
+    },
+    {
+      "slug": "morning-entry",
+      "name": "Morning entry",
+      "sort_order": 3,
+      "decay_window_days": 2,
+      "advance_rule": "Complete the morning entry: sleep hours and quality.",
+      "floor_action": "Log sleep hours only.",
+      "config": { "auto": "morning_entry_saved" },
+      "state_meanings": {
+        "build": "Entry logged most mornings.",
+        "hold": "Keeping the entry habit steady.",
+        "recover": "Sleep hours alone count as done.",
+        "dormant": "Paused. History kept; resume any time."
+      }
+    },
+    {
+      "slug": "study-blocks",
+      "name": "Study blocks",
+      "sort_order": 4,
+      "decay_window_days": 3,
+      "advance_rule": "Log at least one study block of 25 minutes or more.",
+      "floor_action": "One 10-minute block.",
+      "config": {},
+      "state_meanings": {
+        "build": "At least one block most days.",
+        "hold": "Keeping a single daily block steady.",
+        "recover": "A 10-minute block counts fully.",
+        "dormant": "Paused. History kept; resume any time."
+      }
+    }
+  ]
+}

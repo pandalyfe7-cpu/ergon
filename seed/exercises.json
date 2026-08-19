@@ -1,0 +1,541 @@
+{
+  "version": "1.0.0",
+  "exercises": [
+    {
+      "slug": "flat-db-bench",
+      "name": "Flat dumbbell bench press",
+      "equipment": "dumbbells, bench",
+      "movement_pattern": "horizontal_push",
+      "loading_axis": "appendicular",
+      "required_position": "lying",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "machine-chest-press",
+      "fixture": false
+    },
+    {
+      "slug": "seated-db-ohp",
+      "name": "Seated dumbbell overhead press",
+      "equipment": "dumbbells, bench",
+      "movement_pattern": "vertical_push",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-machine-shoulder-press",
+      "fixture": false
+    },
+    {
+      "slug": "cable-fly",
+      "name": "Cable fly",
+      "equipment": "cable stack",
+      "movement_pattern": "chest_isolation",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "pec-deck",
+      "fixture": false
+    },
+    {
+      "slug": "seated-db-lateral-raise",
+      "name": "Seated dumbbell lateral raise",
+      "equipment": "dumbbells, bench",
+      "movement_pattern": "shoulder_isolation",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-lateral-raise",
+      "fixture": false
+    },
+    {
+      "slug": "triceps-pushdown",
+      "name": "Cable triceps pushdown",
+      "equipment": "cable stack",
+      "movement_pattern": "elbow_extension",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "overhead-cable-triceps",
+      "fixture": false
+    },
+    {
+      "slug": "incline-db-press",
+      "name": "Incline dumbbell press",
+      "equipment": "dumbbells, incline bench",
+      "movement_pattern": "horizontal_push",
+      "loading_axis": "appendicular",
+      "required_position": "lying",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "machine-chest-press",
+      "fixture": false
+    },
+    {
+      "slug": "seated-machine-shoulder-press",
+      "name": "Seated machine shoulder press",
+      "equipment": "shoulder press machine",
+      "movement_pattern": "vertical_push",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-db-ohp",
+      "fixture": false
+    },
+    {
+      "slug": "pec-deck",
+      "name": "Pec deck fly",
+      "equipment": "pec deck machine",
+      "movement_pattern": "chest_isolation",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-fly",
+      "fixture": false
+    },
+    {
+      "slug": "cable-lateral-raise",
+      "name": "Cable lateral raise",
+      "equipment": "cable stack",
+      "movement_pattern": "shoulder_isolation",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-db-lateral-raise",
+      "fixture": false
+    },
+    {
+      "slug": "overhead-cable-triceps",
+      "name": "Overhead cable triceps extension",
+      "equipment": "cable stack",
+      "movement_pattern": "elbow_extension",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "triceps-pushdown",
+      "fixture": false
+    },
+    {
+      "slug": "lat-pulldown",
+      "name": "Lat pulldown",
+      "equipment": "cable stack",
+      "movement_pattern": "vertical_pull",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "assisted-pullup",
+      "fixture": false
+    },
+    {
+      "slug": "chest-supported-row",
+      "name": "Chest-supported row",
+      "equipment": "incline bench, dumbbells",
+      "movement_pattern": "horizontal_pull",
+      "loading_axis": "appendicular",
+      "required_position": "supported",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-cable-row",
+      "fixture": false
+    },
+    {
+      "slug": "face-pull",
+      "name": "Face pull",
+      "equipment": "cable stack",
+      "movement_pattern": "rear_delt",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "reverse-pec-deck",
+      "fixture": false
+    },
+    {
+      "slug": "ez-bar-curl",
+      "name": "EZ-bar curl",
+      "equipment": "EZ bar",
+      "movement_pattern": "elbow_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-curl",
+      "fixture": false
+    },
+    {
+      "slug": "hammer-curl",
+      "name": "Hammer curl",
+      "equipment": "dumbbells",
+      "movement_pattern": "elbow_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-curl",
+      "fixture": false
+    },
+    {
+      "slug": "assisted-pullup",
+      "name": "Assisted pull-up",
+      "equipment": "assisted pull-up machine",
+      "movement_pattern": "vertical_pull",
+      "loading_axis": "appendicular",
+      "required_position": "supported",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "lat-pulldown",
+      "fixture": false
+    },
+    {
+      "slug": "machine-row",
+      "name": "Machine row",
+      "equipment": "row machine",
+      "movement_pattern": "horizontal_pull",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-cable-row",
+      "fixture": false
+    },
+    {
+      "slug": "reverse-pec-deck",
+      "name": "Reverse pec deck",
+      "equipment": "pec deck machine",
+      "movement_pattern": "rear_delt",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "face-pull",
+      "fixture": false
+    },
+    {
+      "slug": "cable-curl",
+      "name": "Cable curl",
+      "equipment": "cable stack",
+      "movement_pattern": "elbow_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "ez-bar-curl",
+      "fixture": false
+    },
+    {
+      "slug": "preacher-curl",
+      "name": "Preacher curl",
+      "equipment": "preacher bench, EZ bar",
+      "movement_pattern": "elbow_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "ez-bar-curl",
+      "fixture": false
+    },
+    {
+      "slug": "leg-press",
+      "name": "Leg press",
+      "equipment": "45-degree leg press",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "pelvic",
+      "required_position": "seated",
+      "joint_range": "knee_30_90",
+      "flags": [],
+      "substitution": "leg-extension",
+      "fixture": false
+    },
+    {
+      "slug": "seated-leg-curl",
+      "name": "Seated leg curl",
+      "equipment": "leg curl machine",
+      "movement_pattern": "knee_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "knee_30_90",
+      "flags": [],
+      "substitution": "lying-leg-curl",
+      "fixture": false
+    },
+    {
+      "slug": "leg-extension",
+      "name": "Leg extension",
+      "equipment": "leg extension machine, range pins 30-90",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "knee_30_90",
+      "flags": [],
+      "substitution": "leg-press",
+      "fixture": false
+    },
+    {
+      "slug": "seated-hip-abduction",
+      "name": "Seated hip abduction",
+      "equipment": "hip abduction machine",
+      "movement_pattern": "hip_abduction",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-glute-kickback",
+      "fixture": false
+    },
+    {
+      "slug": "seated-calf-raise",
+      "name": "Seated calf raise",
+      "equipment": "seated calf machine",
+      "movement_pattern": "calf",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "calf-press-leg-press",
+      "fixture": false
+    },
+    {
+      "slug": "belt-squat",
+      "name": "Belt squat",
+      "equipment": "belt squat machine",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "pelvic",
+      "required_position": "standing",
+      "joint_range": "knee_30_90",
+      "flags": [],
+      "substitution": "leg-press",
+      "fixture": false
+    },
+    {
+      "slug": "barbell-hip-thrust",
+      "name": "Barbell hip thrust",
+      "equipment": "barbell, bench",
+      "movement_pattern": "hip_dominant",
+      "loading_axis": "pelvic",
+      "required_position": "supine",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "cable-glute-kickback",
+      "fixture": false
+    },
+    {
+      "slug": "lying-leg-curl",
+      "name": "Lying leg curl",
+      "equipment": "leg curl machine",
+      "movement_pattern": "knee_flexion",
+      "loading_axis": "appendicular",
+      "required_position": "lying",
+      "joint_range": "knee_30_90",
+      "flags": [],
+      "substitution": "seated-leg-curl",
+      "fixture": false
+    },
+    {
+      "slug": "cable-glute-kickback",
+      "name": "Cable glute kickback",
+      "equipment": "cable stack, ankle strap",
+      "movement_pattern": "hip_dominant",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "barbell-hip-thrust",
+      "fixture": false
+    },
+    {
+      "slug": "calf-press-leg-press",
+      "name": "Calf press on leg press",
+      "equipment": "45-degree leg press",
+      "movement_pattern": "calf",
+      "loading_axis": "pelvic",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-calf-raise",
+      "fixture": false
+    },
+    {
+      "slug": "machine-chest-press",
+      "name": "Machine chest press",
+      "equipment": "chest press machine",
+      "movement_pattern": "horizontal_push",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "flat-db-bench",
+      "fixture": false
+    },
+    {
+      "slug": "seated-cable-row",
+      "name": "Seated cable row",
+      "equipment": "cable stack",
+      "movement_pattern": "horizontal_pull",
+      "loading_axis": "appendicular",
+      "required_position": "seated",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "machine-row",
+      "fixture": false
+    },
+    {
+      "slug": "single-arm-db-row",
+      "name": "Single-arm dumbbell row",
+      "equipment": "dumbbell, bench",
+      "movement_pattern": "horizontal_pull",
+      "loading_axis": "appendicular",
+      "required_position": "supported",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "machine-row",
+      "fixture": false
+    },
+    {
+      "slug": "barbell-back-squat",
+      "name": "Barbell back squat (gate-test fixture)",
+      "equipment": "barbell, squat rack",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "axial_spinal",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": ["valsalva_risk", "deep_knee_flexion"],
+      "substitution": "belt-squat",
+      "fixture": true
+    },
+    {
+      "slug": "conventional-deadlift",
+      "name": "Conventional deadlift (gate-test fixture)",
+      "equipment": "barbell",
+      "movement_pattern": "hip_dominant",
+      "loading_axis": "axial_spinal",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": ["valsalva_risk"],
+      "substitution": "barbell-hip-thrust",
+      "fixture": true
+    },
+    {
+      "slug": "standing-barbell-ohp",
+      "name": "Standing barbell overhead press (gate-test fixture)",
+      "equipment": "barbell",
+      "movement_pattern": "vertical_push",
+      "loading_axis": "axial_spinal",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-db-ohp",
+      "fixture": true
+    },
+    {
+      "slug": "barbell-walking-lunge",
+      "name": "Barbell walking lunge (gate-test fixture)",
+      "equipment": "barbell",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "axial_spinal",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": ["deep_knee_flexion"],
+      "substitution": "leg-press",
+      "fixture": true
+    },
+    {
+      "slug": "standing-machine-calf-raise",
+      "name": "Standing machine calf raise (gate-test fixture)",
+      "equipment": "standing calf machine",
+      "movement_pattern": "calf",
+      "loading_axis": "axial_spinal",
+      "required_position": "standing",
+      "joint_range": "full",
+      "flags": [],
+      "substitution": "seated-calf-raise",
+      "fixture": true
+    },
+    {
+      "slug": "box-jump",
+      "name": "Box jump (gate-test fixture)",
+      "equipment": "plyo box",
+      "movement_pattern": "knee_dominant",
+      "loading_axis": "appendicular",
+      "required_position": "standing",
+      "joint_range": "knee_30_90",
+      "flags": ["impact"],
+      "substitution": "leg-press",
+      "fixture": true
+    }
+  ],
+  "sessions": [
+    {
+      "rotation_index": 0,
+      "name": "Push A",
+      "items": [
+        { "slug": "flat-db-bench", "sets": 3, "rep_min": 6, "rep_max": 10 },
+        { "slug": "seated-db-ohp", "sets": 3, "rep_min": 6, "rep_max": 10 },
+        { "slug": "cable-fly", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "seated-db-lateral-raise", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "triceps-pushdown", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    },
+    {
+      "rotation_index": 1,
+      "name": "Pull A",
+      "items": [
+        { "slug": "lat-pulldown", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "chest-supported-row", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "face-pull", "sets": 3, "rep_min": 12, "rep_max": 15 },
+        { "slug": "ez-bar-curl", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "hammer-curl", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    },
+    {
+      "rotation_index": 2,
+      "name": "Legs A",
+      "items": [
+        { "slug": "leg-press", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "seated-leg-curl", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "leg-extension", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "seated-hip-abduction", "sets": 3, "rep_min": 12, "rep_max": 15 },
+        { "slug": "seated-calf-raise", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    },
+    {
+      "rotation_index": 3,
+      "name": "Push B",
+      "items": [
+        { "slug": "incline-db-press", "sets": 3, "rep_min": 6, "rep_max": 10 },
+        { "slug": "seated-machine-shoulder-press", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "pec-deck", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "cable-lateral-raise", "sets": 3, "rep_min": 12, "rep_max": 15 },
+        { "slug": "overhead-cable-triceps", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    },
+    {
+      "rotation_index": 4,
+      "name": "Pull B",
+      "items": [
+        { "slug": "assisted-pullup", "sets": 3, "rep_min": 6, "rep_max": 10 },
+        { "slug": "machine-row", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "reverse-pec-deck", "sets": 3, "rep_min": 12, "rep_max": 15 },
+        { "slug": "cable-curl", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "preacher-curl", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    },
+    {
+      "rotation_index": 5,
+      "name": "Legs B",
+      "items": [
+        { "slug": "belt-squat", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "barbell-hip-thrust", "sets": 3, "rep_min": 8, "rep_max": 12 },
+        { "slug": "lying-leg-curl", "sets": 3, "rep_min": 10, "rep_max": 15 },
+        { "slug": "cable-glute-kickback", "sets": 3, "rep_min": 12, "rep_max": 15 },
+        { "slug": "calf-press-leg-press", "sets": 3, "rep_min": 10, "rep_max": 15 }
+      ]
+    }
+  ]
+}

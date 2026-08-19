@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "rule_id": "no-standing-axial",
+      "description": "No standing axial spinal loading.",
+      "predicate": {
+        "type": "exclude_tag_combo",
+        "loading_axis": "axial_spinal",
+        "required_position": "standing"
+      }
+    },
+    {
+      "rule_id": "overhead-seated",
+      "description": "All overhead pressing seated.",
+      "predicate": {
+        "type": "require_position",
+        "movement_pattern": "vertical_push",
+        "required_position": "seated"
+      }
+    },
+    {
+      "rule_id": "knee-rom-30-90",
+      "description": "Knee extension range of motion capped at 30 to 90 degrees.",
+      "predicate": {
+        "type": "require_range",
+        "movement_patterns": ["knee_dominant", "knee_flexion"],
+        "joint_range": "knee_30_90",
+        "exclude_flag": "deep_knee_flexion"
+      }
+    },
+    {
+      "rule_id": "no-valsalva",
+      "description": "No Valsalva; avoid maximal breath-hold efforts.",
+      "predicate": {
+        "type": "exclude_flag",
+        "flag": "valsalva_risk"
+      }
+    },
+    {
+      "rule_id": "left-leg-hardware",
+      "description": "Left femur and left tibia carry intramedullary rods; left patellar osteoarthritis. No impact loading.",
+      "predicate": {
+        "type": "exclude_flag",
+        "flag": "impact"
+      }
+    }
+  ]
+}

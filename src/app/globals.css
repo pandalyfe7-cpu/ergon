@@ -1,0 +1,252 @@
+@import "tailwindcss";
+
+/*
+ * ERGOS design tokens. Source of truth: docs/ui-constitution.md v2.0.0.
+ * Dark only. One accent. No value here may be invented; every hex, size, and
+ * duration traces to the constitution.
+ */
+@theme {
+  /* Color tokens (constitution §2) */
+  --color-bg: #0e1015;
+  --color-surface: #151823;
+  --color-surface-2: #1c2030;
+  --color-border: #262b3d;
+  --color-text-hi: #f0f2f8;
+  --color-text-mid: #9aa3b8;
+  --color-text-low: #5e6680;
+  --color-accent: #4d9fff;
+  --color-accent-soft: rgba(77, 159, 255, 0.12);
+  /* accent darkened 8%, only for the primary-button gradient (§2 rules) */
+  --color-accent-deep: #4792eb;
+  --color-positive: #3dd68c;
+  --color-negative: #f2555a;
+  --color-warning: #ffb224;
+
+  /*
+   * LEGACY ALIASES for screens not yet rebuilt (log-food, sign-in, history).
+   * Values re-point at constitution tokens. Removed when those screens are
+   * restyled; nothing new may use these names.
+   */
+  --color-background: #0e1015;
+  --color-surface-raised: #1c2030;
+  --color-surface-overlay: #1c2030;
+  --color-border-strong: #262b3d;
+  --color-fg: #f0f2f8;
+  --color-fg-dim: #9aa3b8;
+  --color-status-amber: #ffb224;
+  --color-status-red: #f2555a;
+  --color-status-green: #3dd68c;
+
+  /* Geometry (§4) */
+  --radius-card: 10px;
+  --radius-control: 8px;
+  --radius-chip: 6px;
+
+  /* Overlay shadow: low spread, overlays only (§2 rules) */
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  /* Motion (§7) */
+  --ease-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+/* Every number in the app carries this: mono face, tabular figures (§3). */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Press feedback: scale to 0.98 over 120ms (§5 buttons). */
+@utility press {
+  transition: transform 120ms ease-in;
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-hi);
+  font-family: var(--font-sans);
+}
+
+/* Keyboard focus: 2px accent ring, 2px offset, never removed (§8). */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(77, 159, 255, 0.25);
+}
+
+/* ---------------------------------------------------------------- motion --- */
+
+/* Skeleton shimmer: slow 1.5s opacity, no spinners anywhere (§6). */
+@keyframes ergos-shimmer {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.skeleton {
+  background: var(--color-surface-2);
+  border-radius: var(--radius-chip);
+  animation: ergos-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Signature moment 1: staggered entrance, 12px rise + fade, 30ms stagger,
+   capped at 6 items, first load only (§7). Apply .enter-rise with
+   style="--stagger-i: n". */
+@keyframes ergos-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.enter-rise {
+  animation: ergos-rise 250ms var(--ease-enter) both;
+  animation-delay: calc(min(var(--stagger-i, 0), 5) * 30ms);
+}
+
+/* Signature moment 2: completion pulse, one soft positive glow, 400ms, once.
+   Glow lives on a pseudo-element whose opacity animates (§2, §7). */
+@keyframes ergos-pulse {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.pulse-positive {
+  position: relative;
+}
+.pulse-positive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 12px 1px rgba(61, 214, 140, 0.35);
+  opacity: 0;
+  animation: ergos-pulse 400ms ease-in 1;
+}
+
+/* Signature moment 4: palette open, scale from 0.97 with fade, 150ms (§7). */
+@keyframes ergos-palette-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.palette-in {
+  animation: ergos-palette-in 150ms var(--ease-enter) both;
+}
+
+/* Toast entrance: 200ms rise + fade (§7 entrances). */
+.toast-in {
+  animation: ergos-rise 200ms var(--ease-enter) both;
+}
+
+/* Input focus glow: pre-rendered shadow on a pseudo-element, opacity only. */
+.glow-focus {
+  position: relative;
+}
+.glow-focus::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 10px 1px rgba(77, 159, 255, 0.25);
+  opacity: 0;
+  transition: opacity 120ms ease-in;
+}
+.glow-focus:focus-within::after {
+  opacity: 1;
+}
+
+/* Route transitions: 300ms, content fades and rises; exits are fast ease-in.
+   The shell (nav, header) is anchored and never moves (§7). */
+::view-transition-old(ergos-route) {
+  animation: 150ms ease-in both ergos-fade-out;
+}
+::view-transition-new(ergos-route) {
+  animation: 300ms var(--ease-enter) both ergos-rise;
+}
+@keyframes ergos-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+::view-transition-group(ergos-nav) {
+  animation: none;
+}
+::view-transition-old(ergos-nav) {
+  display: none;
+}
+::view-transition-new(ergos-nav) {
+  animation: none;
+}
+/* The page background never animates; only named content groups do. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Reduced motion: cut everything except short opacity fades; count-ups render
+   final values instantly (handled in the count-up component) (§7). */
+@media (prefers-reduced-motion: reduce) {
+  .enter-rise,
+  .palette-in,
+  .toast-in {
+    animation: ergos-fade-only 120ms ease-in both;
+  }
+  .pulse-positive::after {
+    animation: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+@keyframes ergos-fade-only {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
