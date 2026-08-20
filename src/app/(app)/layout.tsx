@@ -6,14 +6,17 @@ import { QuickAdd, type QuickHabit } from "@/components/quick-add";
 import { TimeZoneSync } from "@/components/time-zone-sync";
 import { ToastProvider } from "@/components/toast";
 import { requireUser } from "@/lib/data";
+import { ensureSeeded } from "@/lib/ergos/seed";
 import { TIME_ZONE_COOKIE } from "@/lib/time";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const zone = cookieStore.get(TIME_ZONE_COOKIE)?.value ?? "";
 
-  // Manually-marked habits get quick-add commands; auto habits mark themselves.
   const { supabase } = await requireUser();
+  await ensureSeeded(supabase);
+
+  // Manually-marked habits get quick-add commands; auto habits mark themselves.
   const { data: habits } = await supabase
     .from("habits")
     .select("slug, name, config")

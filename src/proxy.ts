@@ -3,10 +3,17 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { supabaseEnv } from "@/lib/supabase/env";
 
+function isPublicPath(pathname: string): boolean {
+  if (pathname === "/" || pathname === "/welcome") return true;
+  if (pathname === "/sign-in" || pathname === "/sign-up") return true;
+  if (pathname.startsWith("/auth/callback")) return true;
+  return false;
+}
+
 /**
- * Refreshes the Supabase session on every request and keeps unauthenticated
- * traffic on the sign-in route. RLS returns nothing without a user, so this is
- * the minimum needed for any screen to have data.
+ * Refreshes the Supabase session on every request. Logged-out traffic may hit
+ * the landing page, sign-in, sign-up, and the OAuth callback; everything else
+ * redirects to sign-in. RLS returns nothing without a user.
  */
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -33,16 +40,27 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const onSignIn = request.nextUrl.pathname.startsWith("/sign-in");
+  const { pathname } = request.nextUrl;
 
-  if (!user && !onSignIn) {
+  // OAuth callback must run even when no session exists yet.
+  if (pathname.startsWith("/auth/callback")) {
+    return response;
+  }
+
+  if (!user && pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/welcome";
+    return NextResponse.rewrite(url);
+  }
+
+  if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  if (user && onSignIn) {
+  if (user && (pathname === "/sign-in" || pathname === "/sign-up" || pathname === "/welcome")) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     url.search = "";
