@@ -15,7 +15,6 @@ import {
   useEffect,
   useId,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -81,18 +80,21 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState<false | "all" | "add">(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
-  const dynamic = useRef(new Map<string, PaletteCommand[]>());
-  const [, bump] = useState(0);
+  const [dynamic, setDynamic] = useState<ReadonlyMap<string, PaletteCommand[]>>(
+    new Map(),
+  );
 
   const registry = useMemo<Registry>(
     () => ({
       register(owner, commands) {
-        dynamic.current.set(owner, commands);
-        bump((n) => n + 1);
+        setDynamic((current) => new Map(current).set(owner, commands));
       },
       unregister(owner) {
-        dynamic.current.delete(owner);
-        bump((n) => n + 1);
+        setDynamic((current) => {
+          const next = new Map(current);
+          next.delete(owner);
+          return next;
+        });
       },
     }),
     [],
@@ -123,8 +125,12 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Route changes close the palette.
-  useEffect(close, [pathname, close]);
+  // Route changes close the palette (state reset during render, not an effect).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    if (open) close();
+  }
 
   const commands = useMemo<PaletteCommand[]>(() => {
     const nav: PaletteCommand[] = NAV_TARGETS.map((t) => ({
@@ -134,11 +140,13 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
       keywords: t.href,
       run: () => router.push(t.href),
     }));
-    const contributed = [...dynamic.current.values()].flat();
-    return [...contributed.filter((c) => c.group === "Add"), ...contributed.filter((c) => c.group === "Do"), ...nav];
-    // bump() re-renders when the registry changes; dynamic.current is read fresh.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router, open, query, dynamic.current.size]);
+    const contributed = [...dynamic.values()].flat();
+    return [
+      ...contributed.filter((c) => c.group === "Add"),
+      ...contributed.filter((c) => c.group === "Do"),
+      ...nav,
+    ];
+  }, [router, dynamic]);
 
   const visible = useMemo(() => {
     const pool = open === "add" ? commands.filter((c) => c.group === "Add") : commands;

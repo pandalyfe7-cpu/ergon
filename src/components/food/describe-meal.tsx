@@ -32,7 +32,7 @@ export function DescribeMeal({ defaultSlot }: { defaultSlot: MealSlot }) {
   if (estimate) {
     return (
       <div className="space-y-3">
-        <p className="text-fg-dim text-xs">Estimated. Check the numbers before logging.</p>
+        <p className="text-text-mid text-xs">Estimated. Check the numbers before logging.</p>
         <FoodForm initial={estimate} defaultSlot={defaultSlot} submitLabel="Log meal" />
         <Button
           variant="quiet"
@@ -61,7 +61,7 @@ export function DescribeMeal({ defaultSlot }: { defaultSlot: MealSlot }) {
         />
       </Panel>
 
-      {error ? <p className="text-status-red text-xs">{error}</p> : null}
+      {error ? <p className="text-negative text-xs">{error}</p> : null}
 
       <Button
         type="submit"

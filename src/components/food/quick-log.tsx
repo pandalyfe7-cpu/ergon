@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 
+import { useToast } from "@/components/toast";
 import { SectionLabel, TextField } from "@/components/ui";
+import { call } from "@/lib/client/call";
 import { createLoggedMeal } from "@/lib/food/actions";
 import { formatNumber } from "@/lib/format";
 import type { Food } from "@/lib/types";
@@ -24,8 +26,8 @@ export function QuickLog({
   saved: Food[];
   foods: Food[];
 }) {
+  const { fail, toast } = useToast();
   const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const matches = useMemo(() => {
@@ -37,11 +39,14 @@ export function QuickLog({
   }, [foods, query]);
 
   function log(food: Food) {
-    setError(null);
     startTransition(async () => {
-      const result = await createLoggedMeal({ food_id: food.id, serving: 1 });
-      if ("error" in result) setError(result.error);
-      else setQuery("");
+      const result = await call(createLoggedMeal({ food_id: food.id, serving: 1 }));
+      if ("error" in result) {
+        fail(`Not logged: ${result.error}`, () => log(food));
+        return;
+      }
+      toast(`${food.name} logged`);
+      setQuery("");
     });
   }
 
@@ -58,40 +63,38 @@ export function QuickLog({
           placeholder="Food name"
           aria-label="Search foods"
           onChange={(event) => setQuery(event.target.value)}
-          className="mt-2"
+          className="mt-2 w-full"
         />
 
         {query.trim() ? (
           matches.length > 0 ? (
-            <ul className="border-border divide-border mt-2 divide-y rounded-md border">
+            <ul className="border-border divide-border rounded-card mt-2 divide-y border">
               {matches.map((food) => (
                 <li key={food.id}>
                   <button
                     type="button"
                     disabled={pending}
                     onClick={() => log(food)}
-                    className="hover:bg-surface-raised flex w-full items-center justify-between gap-3 px-3 py-2 text-left disabled:opacity-40"
+                    className="hover:bg-surface-2 flex w-full items-center justify-between gap-3 px-3 py-2 text-left disabled:opacity-40"
                   >
-                    <span className="text-sm leading-tight">{food.name}</span>
-                    <span className="text-fg-dim num shrink-0 text-xs">
-                      {formatNumber(food.calories)} kcal
+                    <span className="text-text-hi text-sm leading-tight">{food.name}</span>
+                    <span className="text-text-low num shrink-0 text-xs">
+                      {formatNumber(food.protein_g)} g P · {formatNumber(food.calories)} kcal
                     </span>
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-fg-dim mt-2 text-xs">
+            <p className="text-text-mid mt-2 text-xs">
               No match.{" "}
-              <Link href="/log-food/new" className="text-accent underline">
+              <Link href="/log-food/new" className="text-accent hover:underline">
                 New food
               </Link>
             </p>
           )
         ) : null}
       </div>
-
-      {error ? <p className="text-status-red text-xs">{error}</p> : null}
     </div>
   );
 }
@@ -119,11 +122,13 @@ function ChipRow({
               type="button"
               disabled={disabled}
               onClick={() => onLog(food)}
-              className="border-border bg-surface-raised hover:border-border-strong flex h-full w-32 flex-col justify-between gap-2 rounded-md border p-2 text-left disabled:opacity-40"
+              className="border-border bg-surface hover:bg-surface-2 rounded-control flex h-full w-32 flex-col justify-between gap-2 border p-2 text-left transition-colors duration-120 disabled:opacity-40"
             >
-              <span className="line-clamp-2 text-xs leading-tight">{food.name}</span>
-              <span className="text-fg-dim num text-[11px]">
-                {formatNumber(food.calories)} kcal
+              <span className="text-text-hi line-clamp-2 text-xs leading-tight">
+                {food.name}
+              </span>
+              <span className="text-text-low num text-[11px]">
+                {formatNumber(food.protein_g)} g P · {formatNumber(food.calories)} kcal
               </span>
             </button>
           </li>

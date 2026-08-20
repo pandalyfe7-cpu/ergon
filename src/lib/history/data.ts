@@ -2,8 +2,7 @@ import { getTimeZone, requireUser } from "@/lib/data";
 import { formatWeekday } from "@/lib/time";
 import { personalRecords } from "@/lib/training/records";
 import { totalVolume } from "@/lib/training/sets";
-import { weeklyStimulus } from "@/lib/training/stimulus";
-import { MUSCLE_GROUPS, type Exercise, type LoggedSet, type MuscleGroup, type Session } from "@/lib/types";
+import type { Exercise, LoggedSet, Session } from "@/lib/types";
 
 /** Sessions on the list. Older ones stay reachable by URL. */
 const HISTORY_LIMIT = 100;
@@ -15,19 +14,13 @@ export type ExercisePreview = { id: string; name: string; sets: number };
 
 export type SessionSummary = {
   session: Session;
+  /** Template name (Push A ... Legs B) or "Freestyle". */
+  name: string;
   dateLabel: string;
   durationMs: number;
   volume: number;
   /** In the order the session first touched them. */
   exercises: ExercisePreview[];
-};
-
-/** One muscle's share of the session, from weeklyStimulus scoped to its sets. */
-export type MuscleShare = {
-  muscle: MuscleGroup;
-  total: number;
-  /** Percent of the session's stimulus across all muscles. */
-  percent: number;
 };
 
 export type ExerciseBlock = {
@@ -40,11 +33,10 @@ export type ExerciseBlock = {
 
 export type SessionDetail = {
   session: Session;
+  name: string;
   dateLabel: string;
   durationMs: number;
   volume: number;
-  split: MuscleShare[];
-  touched: Set<MuscleGroup>;
   blocks: ExerciseBlock[];
 };
 
@@ -82,7 +74,7 @@ export async function getSessionHistory(): Promise<SessionSummary[]> {
 
   if (!sessions || sessions.length === 0) return [];
 
-  const [setsResult, exercisesResult] = await Promise.all([
+  const [setsResult, exercisesResult, templatesResult] = await Promise.all([
     supabase
       .from("logged_sets")
       .select("*")
@@ -91,10 +83,14 @@ export async function getSessionHistory(): Promise<SessionSummary[]> {
         sessions.map((session) => session.id),
       ),
     supabase.from("exercises").select("*"),
+    supabase.from("exercise_templates").select("id, name"),
   ]);
 
   const exercisesById = new Map<string, Exercise>(
     (exercisesResult.data ?? []).map((exercise) => [exercise.id, exercise]),
+  );
+  const templateNames = new Map(
+    (templatesResult.data ?? []).map((t) => [t.id, t.name]),
   );
 
   const setsBySession = new Map<string, LoggedSet[]>();
@@ -108,6 +104,9 @@ export async function getSessionHistory(): Promise<SessionSummary[]> {
     const sets = setsBySession.get(session.id) ?? [];
     return {
       session,
+      name: session.template_id
+        ? (templateNames.get(session.template_id) ?? "Session")
+        : "Freestyle",
       dateLabel: formatWeekday(timeZone, new Date(session.started_at)),
       durationMs: durationOf(session),
       volume: totalVolume(sets),
@@ -117,12 +116,8 @@ export async function getSessionHistory(): Promise<SessionSummary[]> {
 }
 
 /**
- * One finished session in full.
- *
- * The muscle split is weeklyStimulus scoped to this session's sets, turned into
- * percentages of the session's own total. Personal-record marks come from
- * personalRecords over all working-set history, so a set is tagged when it
- * matches or beats that exercise's best. Neither calculation is repeated here.
+ * One finished session in full, editable. Personal-record marks come from
+ * personalRecords over all working-set history.
  */
 export async function getSessionDetail(id: string): Promise<SessionDetail | null> {
   const { supabase } = await requireUser();
@@ -136,28 +131,26 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
 
   if (!session || session.ended_at === null) return null;
 
-  const [setsResult, exercisesResult, historyResult] = await Promise.all([
+  const [setsResult, exercisesResult, historyResult, templateResult] = await Promise.all([
     supabase.from("logged_sets").select("*").eq("session_id", id).order("set_order"),
     supabase.from("exercises").select("*"),
     supabase
       .from("logged_sets")
       .select("exercise_id, weight_lb, reps, is_warmup, performed_at")
       .eq("is_warmup", false),
+    session.template_id
+      ? supabase
+          .from("exercise_templates")
+          .select("name")
+          .eq("id", session.template_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
 
   const sets = setsResult.data ?? [];
   const exercisesById = new Map<string, Exercise>(
     (exercisesResult.data ?? []).map((exercise) => [exercise.id, exercise]),
   );
-
-  const totals = weeklyStimulus(sets, exercisesById);
-  const grandTotal = MUSCLE_GROUPS.reduce((sum, muscle) => sum + totals[muscle].total, 0);
-
-  const split: MuscleShare[] = MUSCLE_GROUPS.flatMap((muscle) => {
-    const total = totals[muscle].total;
-    if (total <= 0) return [];
-    return [{ muscle, total, percent: (total / grandTotal) * 100 }];
-  }).sort((a, b) => b.total - a.total || a.muscle.localeCompare(b.muscle));
 
   const bestByExercise = new Map(
     personalRecords(historyResult.data ?? [], exercisesById).map((record) => [
@@ -180,11 +173,10 @@ export async function getSessionDetail(id: string): Promise<SessionDetail | null
 
   return {
     session,
+    name: templateResult.data?.name ?? "Freestyle",
     dateLabel: formatWeekday(timeZone, new Date(session.started_at)),
     durationMs: durationOf(session),
     volume: totalVolume(sets),
-    split,
-    touched: new Set(split.map((share) => share.muscle)),
     blocks,
   };
 }

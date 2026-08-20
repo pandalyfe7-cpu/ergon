@@ -27,6 +27,24 @@ function revalidateScreens() {
   for (const path of ALL_SCREENS) revalidatePath(path);
 }
 
+// Quick add ------------------------------------------------------------------------
+
+export async function logBodyweight(
+  weightLb: number,
+): Promise<{ error: string } | { ok: true }> {
+  const ctx = await getErgosContext();
+  if (!Number.isFinite(weightLb) || weightLb < 50 || weightLb > 500) {
+    return { error: "Weight must be between 50 and 500 lb." };
+  }
+  const { error } = await ctx.supabase
+    .from("bodyweight_logs")
+    .insert({ weight_lb: weightLb });
+  if (error) return { error: error.message };
+  revalidateScreens();
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
 // Morning entry -----------------------------------------------------------------
 
 export type MorningEntryInput = {

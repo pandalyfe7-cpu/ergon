@@ -14,15 +14,15 @@ export default async function EditRecipePage({
   if (!recipe) notFound();
 
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 pt-6 pb-12">
-      <h1 className="mb-4 truncate text-lg font-semibold">{recipe.name}</h1>
+    <div className="mx-auto w-full max-w-md px-4 pt-6 pb-12">
+      <header className="mb-5 flex items-baseline justify-between gap-3">
+        <h1 className="text-text-hi truncate text-xl font-semibold">{recipe.name}</h1>
+        <Link href="/log-food/recipes" className="text-accent shrink-0 text-sm hover:underline">
+          Recipes
+        </Link>
+      </header>
+
       <RecipeEditor recipe={recipe} foods={foods} />
-      <Link
-        href="/log-food/recipes"
-        className="text-fg-dim hover:text-fg mt-4 inline-block text-xs underline"
-      >
-        Back
-      </Link>
-    </main>
+    </div>
   );
 }

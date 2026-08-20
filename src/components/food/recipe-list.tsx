@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 
-import { Button, Panel } from "@/components/ui";
+import { Button, Card } from "@/components/ui";
 import { logRecipe } from "@/lib/food/actions";
 import { sumFoodQuantities } from "@/lib/food/macros";
 import { formatNumber } from "@/lib/format";
@@ -15,11 +15,11 @@ export function RecipeList({ recipes, foods }: { recipes: Recipe[]; foods: Food[
 
   if (recipes.length === 0) {
     return (
-      <Panel>
-        <p className="text-fg-dim text-sm">
+      <Card>
+        <p className="text-text-mid text-sm">
           No recipes yet. A recipe logs each ingredient separately.
         </p>
-      </Panel>
+      </Card>
     );
   }
 
@@ -27,7 +27,7 @@ export function RecipeList({ recipes, foods }: { recipes: Recipe[]; foods: Food[
 
   return (
     <div className="space-y-3">
-      {error ? <p className="text-status-red text-xs">{error}</p> : null}
+      {error ? <p className="text-negative text-xs">{error}</p> : null}
 
       {recipes.map((recipe) => {
         const items = recipe.ingredients.flatMap((ingredient) => {
@@ -37,11 +37,11 @@ export function RecipeList({ recipes, foods }: { recipes: Recipe[]; foods: Food[
         const totals = sumFoodQuantities(items);
 
         return (
-          <Panel key={recipe.id} className="space-y-3">
+          <Card key={recipe.id} className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <Link href={`/log-food/recipes/${recipe.id}`} className="min-w-0">
                 <span className="block text-sm font-medium leading-tight">{recipe.name}</span>
-                <span className="text-fg-dim num mt-1 block text-xs">
+                <span className="text-text-mid num mt-1 block text-xs">
                   {items.length} items {"\u00b7"} {formatNumber(totals.calories)} kcal
                 </span>
               </Link>
@@ -61,11 +61,11 @@ export function RecipeList({ recipes, foods }: { recipes: Recipe[]; foods: Food[
               </Button>
             </div>
 
-            <p className="text-fg-dim num text-[11px]">
+            <p className="text-text-mid num text-[11px]">
               P {formatNumber(totals.protein_g)} {"\u00b7"} C {formatNumber(totals.carbs_g)}{" "}
               {"\u00b7"} F {formatNumber(totals.fat_g)}
             </p>
-          </Panel>
+          </Card>
         );
       })}
     </div>

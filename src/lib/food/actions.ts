@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getTimeZone, requireUser } from "@/lib/data";
+import { checkProteinHabit } from "@/lib/ergos/actions";
 import {
   requestFoodEstimate,
   TEXT_ESTIMATE_INSTRUCTION,
@@ -18,6 +19,8 @@ export type ActionError = { error: string };
 function revalidateFoodViews() {
   revalidatePath("/log-food");
   revalidatePath("/");
+  revalidatePath("/metrics");
+  revalidatePath("/guidance");
 }
 
 export type NewFoodInput = {
@@ -64,26 +67,47 @@ export async function createLoggedMeal(input: {
 
   if (error || !data) return { error: error?.message ?? "Could not log this food." };
 
+  // The protein habit auto-marks the moment the day's total crosses the floor.
+  await checkProteinHabit();
   revalidateFoodViews();
   return { meal: data };
 }
 
-export async function updateMealServing(id: string, serving: number): Promise<void> {
+export async function updateMealServing(
+  id: string,
+  serving: number,
+): Promise<ActionError | { ok: true }> {
   const { supabase } = await requireUser();
-  await supabase.from("logged_meals").update({ serving: clampServing(serving) }).eq("id", id);
+  const { error } = await supabase
+    .from("logged_meals")
+    .update({ serving: clampServing(serving) })
+    .eq("id", id);
+  if (error) return { error: error.message };
+  await checkProteinHabit();
   revalidateFoodViews();
+  return { ok: true };
 }
 
-export async function updateMealSlot(id: string, meal_slot: MealSlot): Promise<void> {
+export async function updateMealSlot(
+  id: string,
+  meal_slot: MealSlot,
+): Promise<ActionError | { ok: true }> {
   const { supabase } = await requireUser();
-  await supabase.from("logged_meals").update({ meal_slot }).eq("id", id);
+  const { error } = await supabase
+    .from("logged_meals")
+    .update({ meal_slot })
+    .eq("id", id);
+  if (error) return { error: error.message };
   revalidateFoodViews();
+  return { ok: true };
 }
 
-export async function deleteLoggedMeal(id: string): Promise<void> {
+export async function deleteLoggedMeal(id: string): Promise<ActionError | { ok: true }> {
   const { supabase } = await requireUser();
-  await supabase.from("logged_meals").delete().eq("id", id);
+  const { error } = await supabase.from("logged_meals").delete().eq("id", id);
+  if (error) return { error: error.message };
   revalidateFoodViews();
+  return { ok: true };
 }
 
 /**

@@ -36,7 +36,7 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
   if (foods.length === 0) {
     return (
       <Panel>
-        <p className="text-fg-dim text-sm">
+        <p className="text-text-mid text-sm">
           No foods yet. A recipe is built from the library.
         </p>
         <Link href="/log-food/new" className="text-accent mt-2 inline-block text-sm underline">
@@ -103,7 +103,7 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
 
         <ul className="mt-3 space-y-2">
           {rows.map((row) => (
-            <li key={row.key} className="border-border bg-surface-raised rounded-md border p-3">
+            <li key={row.key} className="border-border bg-surface-2 rounded-md border p-3">
               <div className="flex items-center gap-2">
                 <Select
                   value={row.food_id}
@@ -130,7 +130,7 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
                 onClick={() =>
                   setRows((current) => current.filter((item) => item.key !== row.key))
                 }
-                className="text-fg-dim hover:text-fg mt-2 text-xs"
+                className="text-text-mid hover:text-text-hi mt-2 text-xs"
               >
                 Remove
               </button>
@@ -141,7 +141,7 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
         <button
           type="button"
           onClick={addRow}
-          className="border-border text-fg-dim hover:text-fg hover:border-border-strong mt-2 w-full rounded-md border border-dashed py-2 text-xs"
+          className="border-border text-text-mid hover:text-text-hi hover:border-accent/40 mt-2 w-full rounded-md border border-dashed py-2 text-xs"
         >
           Add ingredient
         </button>
@@ -150,13 +150,13 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
       <Panel>
         <SectionLabel>Totals</SectionLabel>
         <p className="num mt-2 text-2xl">{formatNumber(totals.calories)}</p>
-        <p className="text-fg-dim num mt-1 text-xs">
+        <p className="text-text-mid num mt-1 text-xs">
           P {formatNumber(totals.protein_g)} {"\u00b7"} C {formatNumber(totals.carbs_g)}{" "}
           {"\u00b7"} F {formatNumber(totals.fat_g)}
         </p>
       </Panel>
 
-      {error ? <p className="text-status-red text-xs">{error}</p> : null}
+      {error ? <p className="text-negative text-xs">{error}</p> : null}
 
       <Button variant="primary" className="w-full" disabled={pending} onClick={submit}>
         Save
@@ -165,7 +165,7 @@ export function RecipeEditor({ recipe, foods }: { recipe: Recipe | null; foods: 
       {recipe ? (
         <Button
           variant="quiet"
-          className={`w-full ${confirmingDelete ? "text-status-red" : ""}`}
+          className={`w-full ${confirmingDelete ? "text-negative" : ""}`}
           disabled={pending}
           onClick={() => {
             if (!confirmingDelete) {

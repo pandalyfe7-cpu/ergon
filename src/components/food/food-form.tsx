@@ -2,7 +2,7 @@
 
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 
-import { Button, NumberField, Panel, TextField } from "@/components/ui";
+import { Button, NumberField, Card, TextField } from "@/components/ui";
 import { createFoodAndLog } from "@/lib/food/actions";
 import type { FoodEstimate } from "@/lib/food/estimate";
 import { formatMealSlot } from "@/lib/food/slots";
@@ -93,7 +93,7 @@ export function FoodForm({
 
   return (
     <form onSubmit={submit} className="space-y-3">
-      <Panel className="space-y-3">
+      <Card className="space-y-3">
         <Field label="Name">
           <TextField
             value={fields.name}
@@ -102,7 +102,7 @@ export function FoodForm({
           />
         </Field>
 
-        <p className="text-fg-dim text-[11px]">Macros are per one serving.</p>
+        <p className="text-text-mid text-[11px]">Macros are per one serving.</p>
 
         <div className="grid grid-cols-2 gap-2">
           <Field label="Calories">
@@ -151,7 +151,7 @@ export function FoodForm({
           <select
             value={slot}
             onChange={(event) => setSlot(event.target.value as MealSlot)}
-            className="border-border bg-surface-raised text-fg focus:border-accent w-full rounded-md border px-2 py-1.5 text-sm outline-none"
+            className="border-border bg-surface-2 text-text-hi focus:border-accent w-full rounded-control border px-2 py-1.5 text-sm outline-none"
           >
             {MEAL_SLOTS.map((option) => (
               <option key={option} value={option}>
@@ -170,9 +170,9 @@ export function FoodForm({
           />
           Keep in library
         </label>
-      </Panel>
+      </Card>
 
-      {error ? <p className="text-status-red text-xs">{error}</p> : null}
+      {error ? <p className="text-negative text-xs">{error}</p> : null}
 
       <Button type="submit" variant="primary" className="w-full" disabled={pending}>
         {submitLabel}
@@ -184,7 +184,7 @@ export function FoodForm({
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="text-fg-dim mb-1 block text-[11px]">{label}</span>
+      <span className="text-text-mid mb-1 block text-[11px]">{label}</span>
       {children}
     </label>
   );

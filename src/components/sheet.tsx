@@ -36,7 +36,7 @@ export function Sheet({
         onClick={(event) => event.stopPropagation()}
         className="border-border bg-surface-overlay w-full max-w-md rounded-lg border p-4"
       >
-        <h2 className="text-fg-dim mb-3 text-xs font-medium tracking-widest uppercase">
+        <h2 className="text-text-mid mb-3 text-xs font-medium tracking-widest uppercase">
           {title}
         </h2>
         {children}

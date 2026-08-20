@@ -26,17 +26,22 @@ export function CountUp({
   const [shown, setShown] = useState(start);
   const frame = useRef(0);
 
+  // Prop changes (e.g. router.refresh) restart the count from the new start.
+  const [prev, setPrev] = useState({ start, value });
+  if (prev.start !== start || prev.value !== value) {
+    setPrev({ start, value });
+    setShown(start);
+  }
+
   useEffect(() => {
-    if (start === value) {
-      setShown(value);
-      return;
-    }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShown(value);
-      return;
-    }
+    if (start === value) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const t0 = performance.now();
     const tick = (now: number) => {
+      if (reduced) {
+        setShown(value);
+        return;
+      }
       const progress = Math.min((now - t0) / 300, 1);
       // Standard entrance feel: fast start, settled end.
       const eased = 1 - Math.pow(1 - progress, 3);

@@ -22,21 +22,6 @@
   --color-negative: #f2555a;
   --color-warning: #ffb224;
 
-  /*
-   * LEGACY ALIASES for screens not yet rebuilt (log-food, sign-in, history).
-   * Values re-point at constitution tokens. Removed when those screens are
-   * restyled; nothing new may use these names.
-   */
-  --color-background: #0e1015;
-  --color-surface-raised: #1c2030;
-  --color-surface-overlay: #1c2030;
-  --color-border-strong: #262b3d;
-  --color-fg: #f0f2f8;
-  --color-fg-dim: #9aa3b8;
-  --color-status-amber: #ffb224;
-  --color-status-red: #f2555a;
-  --color-status-green: #3dd68c;
-
   /* Geometry (§4) */
   --radius-card: 10px;
   --radius-control: 8px;

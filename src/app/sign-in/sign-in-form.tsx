@@ -16,12 +16,12 @@ export function SignInForm() {
   return (
     <form action={formAction} className="space-y-3">
       <label className="block space-y-1">
-        <span className="text-fg-dim text-xs tracking-widest uppercase">Email</span>
+        <span className="text-text-low text-xs tracking-widest uppercase">Email</span>
         <input name="email" type="email" required autoComplete="email" className={FIELD} />
       </label>
 
       <label className="block space-y-1">
-        <span className="text-fg-dim text-xs tracking-widest uppercase">Password</span>
+        <span className="text-text-low text-xs tracking-widest uppercase">Password</span>
         <input
           name="password"
           type="password"
@@ -32,7 +32,9 @@ export function SignInForm() {
       </label>
 
       {state.message ? (
-        <p className="text-status-red text-xs">{state.message}</p>
+        <p className="text-negative text-xs" role="alert">
+          {state.message}
+        </p>
       ) : null}
 
       <Button

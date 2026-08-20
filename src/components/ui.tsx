@@ -148,10 +148,12 @@ export function Chip({
   children,
   tone = "mid",
   className,
+  title,
 }: {
   children: ReactNode;
   tone?: "mid" | "accent" | "positive" | "negative" | "warning";
   className?: string;
+  title?: string;
 }) {
   const tones = {
     mid: "text-text-mid border-border",
@@ -162,6 +164,7 @@ export function Chip({
   } as const;
   return (
     <span
+      title={title}
       className={cx(
         "num rounded-chip inline-flex items-center gap-1 border px-1.5 py-0.5 text-xs",
         tones[tone],
