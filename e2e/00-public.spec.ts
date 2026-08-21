@@ -15,6 +15,7 @@ test("landing at / asks what is worth doing today", async ({ page }) => {
     "/sign-up",
   );
   await expect(page.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  await expect(page.getByText("or continue with")).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
 });
 
@@ -35,6 +36,7 @@ test("sign-up has confirm password and Google", async ({ page }) => {
   await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Confirm password")).toBeVisible();
   await expect(page.getByRole("button", { name: "Create account" })).toBeVisible();
+  await expect(page.getByText("or continue with")).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
 });

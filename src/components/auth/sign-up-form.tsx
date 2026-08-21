@@ -3,8 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 
-import { GoogleButton } from "@/components/auth/google-button";
-import { AuthDivider, AuthLink } from "@/components/auth/auth-shell";
+import { AuthContinueWith, AuthLink } from "@/components/auth/auth-shell";
 import { Button, FIELD_CLASS } from "@/components/ui";
 import { signUp } from "@/lib/auth/actions";
 
@@ -65,8 +64,7 @@ export function SignUpForm() {
         </Button>
       </form>
 
-      <AuthDivider />
-      <GoogleButton />
+      <AuthContinueWith />
       <AuthLink href="/sign-in">Sign in</AuthLink>
     </div>
   );
