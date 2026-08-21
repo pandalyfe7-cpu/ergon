@@ -127,88 +127,98 @@ export default async function TodayPage() {
 
   const primary = rows[0] ?? null;
   const secondaryCount = rows.length - 1;
+  const showRail = output.coldStart || secondaryCount > 0;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-12">
+    <div>
       <header className="mb-5">
         <h1 className="text-text-hi text-xl font-semibold">Today</h1>
-        <p className="text-text-mid mt-0.5 text-sm">
+        <p className="text-text-mid mt-0.5 max-w-[75ch] text-sm">
           {formatWeekday(ctx.timeZone)} ·{" "}
           <span className="num">{loaded.state.timeAvailableMin} min available</span>
         </p>
       </header>
 
-      <div className="space-y-4">
-        <div className="enter-rise" style={{ "--stagger-i": 0 } as React.CSSProperties}>
-          <MorningEntryCard
-            entry={loaded.morningEntry}
-            defaultTimeAvailable={loaded.settings.default_time_available_min}
-          />
-        </div>
-
-        {output.coldStart && (
-          <Card className="enter-rise">
-            <SectionLabel>Cold start</SectionLabel>
-            <p className="text-text-mid mt-2 text-sm">
-              Under two weeks of history: recommendations are limited to the next
-              rotation session and the most overdue habit until there is enough
-              data to score honestly.
-            </p>
-            <ul className="mt-2 space-y-1">
-              {output.waitingOn.map((line) => (
-                <li key={line} className="text-text-low text-xs">
-                  · {line}
-                </li>
-              ))}
-            </ul>
-          </Card>
-        )}
-
+      <div className="grid max-w-[720px] grid-cols-1 items-start gap-6 xl:max-w-none xl:grid-cols-[minmax(0,1fr)_380px] 3xl:grid-cols-[400px_minmax(0,1fr)_400px]">
         <section
-          className="enter-rise"
-          style={{ "--stagger-i": 1 } as React.CSSProperties}
+          className="min-w-0 space-y-4 3xl:order-2"
           aria-label="Primary recommendation"
         >
-          <div className="mb-2 flex items-baseline justify-between">
+          <div className="enter-rise" style={{ "--stagger-i": 0 } as React.CSSProperties}>
             <SectionLabel>Now</SectionLabel>
-            {secondaryCount > 0 && (
-              <Link href="/guidance" className="text-accent text-sm hover:underline">
-                {secondaryCount} more on Guidance
-              </Link>
+            <div className="mt-2 max-w-[75ch]">
+              {primary ? (
+                <RecCard rec={primary} primary />
+              ) : (
+                <Card>
+                  <p className="text-text-hi text-sm font-medium">Nothing pressing.</p>
+                  <p className="text-text-mid mt-1 text-sm">
+                    No action scores above the threshold right now. Log what you do
+                    and the engine will keep watch.
+                  </p>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          <div className="enter-rise" style={{ "--stagger-i": 1 } as React.CSSProperties}>
+            {rotationSession && template ? (
+              <SessionPanel
+                dayLabel={`Rotation day ${position + 1} of 6`}
+                sessionName={rotationSession.name}
+                open={loaded.openSession}
+                openMatchesRotation={openMatchesRotation}
+                lifts={lifts}
+                initialSets={openSets}
+              />
+            ) : (
+              <Card className="max-w-[75ch]">
+                <p className="text-text-mid text-sm">
+                  No rotation sessions are seeded. Run{" "}
+                  <span className="num">npm run db:seed</span> and reload.
+                </p>
+              </Card>
             )}
           </div>
-          {primary ? (
-            <RecCard rec={primary} primary />
-          ) : (
-            <Card>
-              <p className="text-text-hi text-sm font-medium">Nothing pressing.</p>
-              <p className="text-text-mid mt-1 text-sm">
-                No action scores above the threshold right now. Log what you do
-                and the engine will keep watch.
-              </p>
-            </Card>
-          )}
         </section>
 
-        <div className="enter-rise" style={{ "--stagger-i": 2 } as React.CSSProperties}>
-          {rotationSession && template ? (
-            <SessionPanel
-              dayLabel={`Rotation day ${position + 1} of 6`}
-              sessionName={rotationSession.name}
-              open={loaded.openSession}
-              openMatchesRotation={openMatchesRotation}
-              lifts={lifts}
-              initialSets={openSets}
+        <aside className="min-w-0 3xl:order-1">
+          <div className="enter-rise" style={{ "--stagger-i": 2 } as React.CSSProperties}>
+            <MorningEntryCard
+              entry={loaded.morningEntry}
+              defaultTimeAvailable={loaded.settings.default_time_available_min}
             />
-          ) : (
-            <Card>
-              <p className="text-text-mid text-sm">
-                No rotation sessions are seeded. Run{" "}
-                <span className="num">npm run db:seed</span> and reload.
+          </div>
+        </aside>
+
+        {showRail && (
+          <aside className="min-w-0 space-y-4 xl:col-start-2 3xl:col-start-auto 3xl:order-3">
+            {output.coldStart && (
+              <Card className="enter-rise max-w-[75ch]">
+                <SectionLabel>Cold start</SectionLabel>
+                <p className="text-text-mid mt-2 text-sm">
+                  Under two weeks of history: recommendations are limited to the next
+                  rotation session and the most overdue habit until there is enough
+                  data to score honestly.
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {output.waitingOn.map((line) => (
+                    <li key={line} className="text-text-low text-xs">
+                      · {line}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
+            {secondaryCount > 0 && (
+              <p className="max-w-[75ch]">
+                <Link href="/guidance" className="text-accent text-sm hover:underline">
+                  {secondaryCount} more on Guidance
+                </Link>
               </p>
-            </Card>
-          )}
-        </div>
+            )}
+          </aside>
+        )}
       </div>
     </div>
   );

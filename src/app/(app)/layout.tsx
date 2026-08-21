@@ -29,9 +29,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <ToastProvider>
       <PaletteProvider>
         <TimeZoneSync current={zone} />
-        <Nav />
         <QuickAdd habits={quickHabits} />
-        <main className="min-h-dvh pb-16 lg:pb-0 lg:pl-56">{children}</main>
+        <div className="flex min-h-dvh">
+          <Nav />
+          <main className="min-w-0 flex-1 pb-16 md:pb-0">
+            <div className="mx-auto w-full max-w-[1680px] px-6 py-8 xl:px-8 3xl:px-12">
+              {children}
+            </div>
+          </main>
+        </div>
       </PaletteProvider>
     </ToastProvider>
   );

@@ -12,19 +12,20 @@ export default async function GuidancePage() {
   // Sequential: feedback reads the rows the refresh just wrote.
   const { rows, output, actedOn } = await refreshRecommendations(ctx);
   const feedback = await getWeeklyRuleFeedback(ctx);
+  const totalShown = feedback.reduce((n, row) => n + row.shown, 0);
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-12">
+    <div className="mx-auto w-full max-w-[720px]">
       <header className="mb-5">
         <h1 className="text-text-hi text-xl font-semibold">Guidance</h1>
-        <p className="text-text-mid mt-0.5 text-sm">
+        <p className="text-text-mid mt-0.5 max-w-[75ch] text-sm">
           Everything worth doing right now, ranked. Every card shows its data.
         </p>
       </header>
 
       <div className="space-y-4">
         {output.coldStart && (
-          <Card>
+          <Card className="max-w-[75ch]">
             <SectionLabel>Cold start</SectionLabel>
             <p className="text-text-mid mt-2 text-sm">
               Under two weeks of history: only the next rotation session and the
@@ -41,7 +42,7 @@ export default async function GuidancePage() {
         )}
 
         {rows.length === 0 ? (
-          <Card>
+          <Card className="max-w-[75ch]">
             <p className="text-text-hi text-sm font-medium">Nothing pressing.</p>
             <p className="text-text-mid mt-1 text-sm">
               No action scores above the threshold right now. That is a fine
@@ -53,7 +54,7 @@ export default async function GuidancePage() {
             {rows.map((rec, index) => (
               <li
                 key={rec.id}
-                className="enter-rise"
+                className="enter-rise max-w-[75ch]"
                 style={{ "--stagger-i": index } as React.CSSProperties}
               >
                 {index === 0 && (
@@ -102,14 +103,9 @@ export default async function GuidancePage() {
           </section>
         )}
 
-        <section>
-          <SectionLabel>Rule feedback, last 7 days</SectionLabel>
-          {feedback.length === 0 ? (
-            <p className="text-text-mid mt-2 text-sm">
-              No recommendations recorded yet this week. This view fills in as
-              you accept, dismiss, or ignore cards.
-            </p>
-          ) : (
+        {totalShown >= 10 ? (
+          <section>
+            <SectionLabel>Rule feedback, last 7 days</SectionLabel>
             <table className="num mt-2 w-full text-sm">
               <thead>
                 <tr className="text-text-low text-left text-xs">
@@ -132,12 +128,16 @@ export default async function GuidancePage() {
                 ))}
               </tbody>
             </table>
-          )}
-          <p className="text-text-low mt-2 text-xs">
-            Weights never adjust themselves; tune them in Settings if a rule
-            keeps producing cards you ignore.
+            <p className="text-text-low mt-2 text-xs">
+              Weights never adjust themselves; tune them in Settings if a rule
+              keeps producing cards you ignore.
+            </p>
+          </section>
+        ) : (
+          <p className="text-text-mid max-w-[75ch] text-sm">
+            Rule feedback appears once rules have been shown 10 times.
           </p>
-        </section>
+        )}
       </div>
     </div>
   );

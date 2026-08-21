@@ -32,6 +32,10 @@
 
   /* Motion (§7) */
   --ease-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Density-tiered layout: 1920px and 2400px shells */
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 150rem;
 }
 
 @theme inline {

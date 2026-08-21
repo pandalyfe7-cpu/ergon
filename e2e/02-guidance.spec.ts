@@ -60,10 +60,12 @@ test("snooze hides the card for three hours", async ({ page }) => {
   await expect(page.getByText("Snoozed for 3 hours")).toBeVisible();
 });
 
-test("weekly rule feedback table renders", async ({ page }) => {
-  await expect(page.getByText("Rule feedback, last 7 days")).toBeVisible();
-  // Actions from earlier tests guarantee at least one row.
-  await expect(page.locator("table").getByText("shown")).toBeVisible();
+test("weekly rule feedback waits until ten shown", async ({ page }) => {
+  const placeholder = page.getByText(
+    "Rule feedback appears once rules have been shown 10 times.",
+  );
+  const table = page.locator("table").getByText("shown");
+  await expect(placeholder.or(table).first()).toBeVisible();
 });
 
 test("cold start limits recommendations and says why", async ({ page }) => {

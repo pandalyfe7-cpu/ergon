@@ -94,53 +94,58 @@ export function MorningEntryCard({
   return (
     <section className="border-border bg-surface rounded-card border p-4">
       <SectionLabel>Morning entry</SectionLabel>
-      <form action={submit} className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <label className="block">
-          <span className="text-text-mid text-xs">Sleep hours</span>
-          <NumberField
-            name="sleep_hours"
-            step="0.1"
-            min="0"
-            max="24"
-            required
-            defaultValue={shown?.sleep_hours ?? ""}
-            placeholder="7.5"
-            className="mt-1"
-          />
-        </label>
-        <label className="block">
-          <span className="text-text-mid text-xs">Quality 1-10</span>
-          <NumberField
-            name="sleep_quality"
-            step="1"
-            min="1"
-            max="10"
-            required
-            defaultValue={shown?.sleep_quality ?? ""}
-            placeholder="7"
-            className="mt-1"
-          />
-        </label>
-        <label className="block">
-          <span className="text-text-mid text-xs">Bed time</span>
-          <input
-            type="time"
-            name="bed_time"
-            defaultValue={shown?.bed_time ?? ""}
-            className="num border-border bg-surface text-text-hi rounded-control mt-1 w-full border px-3 py-2 text-sm outline-none focus-visible:outline-2 focus-visible:outline-accent"
-          />
-        </label>
-        <label className="block">
-          <span className="text-text-mid text-xs">Minutes available</span>
-          <NumberField
-            name="time_available_min"
-            step="5"
-            min="5"
-            defaultValue={shown?.time_available_min ?? defaultTimeAvailable}
-            className="mt-1"
-          />
-        </label>
-        <div className="col-span-2 flex gap-2 sm:col-span-4">
+      <form action={submit}>
+        <div className="mt-3 grid max-w-[440px] grid-cols-2 gap-3">
+          <label className="block min-w-0">
+            <span className="text-text-mid text-xs">Sleep hours</span>
+            <NumberField
+              name="sleep_hours"
+              step="0.1"
+              min="0"
+              max="24"
+              required
+              defaultValue={shown?.sleep_hours ?? ""}
+              placeholder="7.5"
+              className="!text-left"
+              shellClassName="mt-1"
+            />
+          </label>
+          <label className="block min-w-0">
+            <span className="text-text-mid text-xs">Quality 1-10</span>
+            <NumberField
+              name="sleep_quality"
+              step="1"
+              min="1"
+              max="10"
+              required
+              defaultValue={shown?.sleep_quality ?? ""}
+              placeholder="7"
+              className="!text-left"
+              shellClassName="mt-1"
+            />
+          </label>
+          <label className="block min-w-0">
+            <span className="text-text-mid text-xs">Bed time</span>
+            <input
+              type="time"
+              name="bed_time"
+              defaultValue={shown?.bed_time ?? ""}
+              className="num border-border bg-surface text-text-hi rounded-control mt-1 w-full border px-3 py-2 text-left text-sm outline-none focus-visible:outline-2 focus-visible:outline-accent"
+            />
+          </label>
+          <label className="block min-w-0">
+            <span className="text-text-mid text-xs">Minutes available</span>
+            <NumberField
+              name="time_available_min"
+              step="5"
+              min="5"
+              defaultValue={shown?.time_available_min ?? defaultTimeAvailable}
+              className="!text-left"
+              shellClassName="mt-1"
+            />
+          </label>
+        </div>
+        <div className="mt-3 flex gap-2">
           <Button type="submit" variant="primary">
             Save entry
           </Button>

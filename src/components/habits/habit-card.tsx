@@ -12,6 +12,7 @@ import { useToast } from "@/components/toast";
 import { Button, CheckIcon, Chip, cx } from "@/components/ui";
 import { call } from "@/lib/client/call";
 import { markHabit, setHabitState } from "@/lib/ergos/actions";
+import { formatMonthDay } from "@/lib/time";
 import type { HabitState } from "@/lib/types";
 
 const STATE_TONES: Record<HabitState, "accent" | "positive" | "warning" | "mid"> = {
@@ -28,6 +29,17 @@ const STATE_LABELS: Record<HabitState, string> = {
   dormant: "Dormant",
 };
 
+const STRIP_OUTCOME: Record<HabitStripDay["outcome"], string> = {
+  met: "met",
+  missed: "missed",
+  unknown: "unknown",
+};
+
+export type HabitStripDay = {
+  date: string;
+  outcome: "met" | "missed" | "unknown";
+};
+
 export type HabitCardData = {
   slug: string;
   name: string;
@@ -41,8 +53,8 @@ export type HabitCardData = {
   daysLeft: number;
   /** True when a system event marks this habit rather than a button. */
   auto: boolean;
-  /** Last 14 days, oldest first: was the habit marked that day. */
-  strip: { date: string; marked: boolean }[];
+  /** Last 14 days, oldest first. */
+  strip: HabitStripDay[];
 };
 
 export function HabitCard({ habit, index }: { habit: HabitCardData; index: number }) {
@@ -86,23 +98,23 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
   return (
     <li
       className={cx(
-        "border-border bg-surface rounded-card enter-rise border p-4",
+        "border-border bg-surface rounded-card enter-rise min-w-0 border p-5",
         pulse && "pulse-positive",
       )}
       style={{ "--stagger-i": index } as React.CSSProperties}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-text-hi text-sm font-medium">{habit.name}</h3>
-          <p className="text-text-mid mt-0.5 text-xs">{habit.stateMeaning}</p>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-text-hi min-w-0 truncate text-sm font-medium">{habit.name}</h3>
         <div className="relative shrink-0">
           <button
             className="rounded-chip focus-visible:outline-accent"
             aria-label={`Change state of ${habit.name}, currently ${STATE_LABELS[habit.state]}`}
+            title={habit.stateMeaning}
             onClick={() => setShowStates((v) => !v)}
           >
-            <Chip tone={STATE_TONES[habit.state]}>{STATE_LABELS[habit.state]}</Chip>
+            <Chip tone={STATE_TONES[habit.state]} title={habit.stateMeaning}>
+              {STATE_LABELS[habit.state]}
+            </Chip>
           </button>
           {showStates && (
             <div className="border-border bg-surface-2 shadow-overlay rounded-card absolute right-0 z-10 mt-1 w-36 border p-1">
@@ -125,7 +137,7 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
         <span className="num text-text-hi text-sm">
           {habit.streak}
           <span className="text-text-low text-xs"> day streak</span>
@@ -147,23 +159,26 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
         )}
       </div>
 
-      <div className="mt-3 flex items-end justify-between gap-3">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
         <div aria-label="Last 14 days" className="flex items-center gap-1">
           {habit.strip.map((day) => (
             <span
               key={day.date}
-              title={day.date}
+              title={`${formatMonthDay(day.date)} · ${STRIP_OUTCOME[day.outcome]}`}
               className={cx(
-                "size-1.5 rounded-full",
-                day.marked ? "bg-positive" : "bg-border",
+                "size-2 shrink-0 rounded-full",
+                day.outcome === "met" && "bg-positive",
+                day.outcome === "missed" && "border-text-mid border bg-transparent",
+                day.outcome === "unknown" &&
+                  "border-text-low border border-dashed bg-transparent",
               )}
             />
           ))}
         </div>
         {habit.auto ? (
-          <p className="text-text-low text-right text-xs">{habit.advanceRule}</p>
+          <p className="text-text-low text-xs">{habit.advanceRule}</p>
         ) : marked ? (
-          <p className="text-text-low text-right text-xs">{habit.advanceRule}</p>
+          <p className="text-text-low text-xs">{habit.advanceRule}</p>
         ) : (
           <div className="flex shrink-0 gap-2">
             {(overdue || habit.state === "recover") && (

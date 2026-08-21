@@ -101,9 +101,51 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function NavLinks({
+  pathname,
+  variant,
+}: {
+  pathname: string;
+  variant: "sidebar" | "bar";
+}) {
+  const sidebar = variant === "sidebar";
+  return (
+    <ul className={sidebar ? "flex flex-col gap-1 px-3" : "grid grid-cols-7"}>
+      {ITEMS.map((item) => {
+        const active = isActive(pathname, item.href);
+        return (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              aria-label={item.label}
+              aria-current={active ? "page" : undefined}
+              title={item.label}
+              className={cx(
+                "flex min-h-12 items-center justify-center gap-3 text-sm",
+                sidebar && "rounded-control min-h-0 justify-start px-3 py-2",
+                active
+                  ? sidebar
+                    ? "text-accent bg-accent-soft"
+                    : "text-accent"
+                  : sidebar
+                    ? "text-text-mid hover:text-text-hi hover:bg-surface-2"
+                    : "text-text-mid hover:text-text-hi",
+              )}
+            >
+              {item.icon}
+              {sidebar && <span>{item.label}</span>}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 /**
- * Desktop: fixed left sidebar. Mobile: fixed bottom bar, icon-only with
- * accessible names, 44px+ targets. Anchored during route transitions.
+ * Desktop: in-flow sticky sidebar (240px, 280px at 3xl). Mobile: fixed bottom
+ * bar, icon-only with accessible names, 44px+ targets. Anchored during route
+ * transitions.
  */
 export function Nav() {
   const pathname = usePathname();
@@ -113,38 +155,20 @@ export function Nav() {
       <nav
         aria-label="Primary"
         style={{ viewTransitionName: "ergos-nav" }}
-        className="border-border bg-surface fixed inset-x-0 bottom-0 z-40 border-t lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:w-56 lg:border-t-0 lg:border-r lg:bg-transparent"
+        className="border-border hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-dvh md:w-60 md:flex-col 3xl:w-70"
       >
-        <div className="hidden px-4 pt-6 pb-4 lg:block">
+        <div className="px-4 pt-6 pb-4">
           <Link href="/" className="text-text-hi text-xl font-semibold">
             ERGOS
           </Link>
         </div>
-        <ul className="grid grid-cols-7 lg:grid-cols-1 lg:gap-1 lg:px-3">
-          {ITEMS.map((item) => {
-            const active = isActive(pathname, item.href);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  aria-label={item.label}
-                  aria-current={active ? "page" : undefined}
-                  title={item.label}
-                  className={cx(
-                    "flex min-h-12 items-center justify-center lg:min-h-0 lg:justify-start",
-                    "lg:rounded-control gap-3 text-sm lg:px-3 lg:py-2",
-                    active
-                      ? "text-accent lg:bg-accent-soft"
-                      : "text-text-mid hover:text-text-hi lg:hover:bg-surface-2",
-                  )}
-                >
-                  {item.icon}
-                  <span className="hidden lg:inline">{item.label}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <NavLinks pathname={pathname} variant="sidebar" />
+      </nav>
+      <nav
+        aria-label="Primary"
+        className="border-border bg-surface fixed inset-x-0 bottom-0 z-40 border-t md:hidden"
+      >
+        <NavLinks pathname={pathname} variant="bar" />
       </nav>
     </>
   );
