@@ -125,3 +125,28 @@ export async function setOnboardingStep(userId: string, step: number): Promise<v
 export async function clearOnboardingProfile(userId: string): Promise<void> {
   await query(`delete from public.user_profile where user_id = $1`, [userId]);
 }
+
+/** Clears onboarding artifacts so the flow can run from scratch. */
+export async function resetOnboardingData(userId: string): Promise<void> {
+  await query(`delete from public.intake_scores where user_id = $1`, [userId]);
+  await query(`delete from public.user_barriers where user_id = $1`, [userId]);
+  await query(`delete from public.user_motivators where user_id = $1`, [userId]);
+  await query(`delete from public.user_goals where user_id = $1`, [userId]);
+  await query(`delete from public.user_profile where user_id = $1`, [userId]);
+}
+
+export async function getOnboardingStep(userId: string): Promise<number | null> {
+  const rows = await query<{ onboarding_step: number }>(
+    `select onboarding_step from public.user_profile where user_id = $1`,
+    [userId],
+  );
+  return rows[0]?.onboarding_step ?? null;
+}
+
+export async function getStoredPlanHabitCount(userId: string): Promise<number> {
+  const rows = await query<{ capacity: { plan?: { habits?: unknown[] } } }>(
+    `select capacity from public.user_profile where user_id = $1`,
+    [userId],
+  );
+  return rows[0]?.capacity?.plan?.habits?.length ?? 0;
+}

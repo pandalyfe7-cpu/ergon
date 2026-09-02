@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { Nav } from "@/components/nav";
 import { PaletteProvider } from "@/components/palette";
@@ -7,6 +8,7 @@ import { TimeZoneSync } from "@/components/time-zone-sync";
 import { ToastProvider } from "@/components/toast";
 import { requireUser } from "@/lib/data";
 import { ensureSeeded } from "@/lib/ergos/seed";
+import { getOnboardingState } from "@/lib/onboarding/profile";
 import { TIME_ZONE_COOKIE } from "@/lib/time";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +16,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const zone = cookieStore.get(TIME_ZONE_COOKIE)?.value ?? "";
 
   const { supabase } = await requireUser();
+  const onboarding = await getOnboardingState(supabase);
+  if (!onboarding.complete) redirect("/onboarding");
+
   await ensureSeeded(supabase);
 
   // Manually-marked habits get quick-add commands; auto habits mark themselves.

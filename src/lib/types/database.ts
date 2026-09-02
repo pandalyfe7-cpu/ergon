@@ -29,6 +29,7 @@ import type {
   UserConstraint,
   UserGoal,
   UserMotivator,
+  IntakeScore,
   UserProfile,
   UserSettings,
   WaterLog,
@@ -133,6 +134,7 @@ export type Database = {
       user_goals: Table<UserGoal, "target_date" | "metric">;
       user_barriers: Table<UserBarrier, "note">;
       user_motivators: Table<UserMotivator, "note">;
+      intake_scores: Table<IntakeScore, "trace">;
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

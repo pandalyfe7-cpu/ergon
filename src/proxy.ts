@@ -2,12 +2,20 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { supabaseEnv } from "@/lib/supabase/env";
+import { ONBOARDING_COMPLETE_STEP } from "@/lib/onboarding/constants";
 
-function isPublicPath(pathname: string): boolean {
-  if (pathname === "/" || pathname === "/welcome") return true;
-  if (pathname === "/sign-in" || pathname === "/sign-up") return true;
-  if (pathname.startsWith("/auth/callback")) return true;
-  return false;
+function isAppRoute(pathname: string): boolean {
+  if (pathname === "/") return true;
+  const prefixes = [
+    "/guidance",
+    "/metrics",
+    "/habits",
+    "/history",
+    "/settings",
+    "/train",
+    "/log-food",
+  ];
+  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 /**
@@ -53,7 +61,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  if (!user && !isPublicPath(pathname)) {
+  const isAuthPage =
+    pathname === "/sign-in" || pathname === "/sign-up" || pathname === "/welcome";
+  const isCallback = pathname.startsWith("/auth/callback");
+
+  if (!user && !isAuthPage && !isCallback && pathname !== "/onboarding") {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     url.search = "";
@@ -62,9 +74,43 @@ export async function proxy(request: NextRequest) {
 
   if (user && (pathname === "/sign-in" || pathname === "/sign-up" || pathname === "/welcome")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    const { data: profile } = await supabase
+      .from("user_profile")
+      .select("onboarding_step")
+      .maybeSingle();
+    const complete =
+      profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP;
+    url.pathname = complete ? "/" : "/onboarding";
     url.search = "";
     return NextResponse.redirect(url);
+  }
+
+  if (user && isAppRoute(pathname)) {
+    const { data: profile } = await supabase
+      .from("user_profile")
+      .select("onboarding_step")
+      .maybeSingle();
+    const complete =
+      profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP;
+    if (!complete) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  if (user && pathname === "/onboarding") {
+    const { data: profile } = await supabase
+      .from("user_profile")
+      .select("onboarding_step")
+      .maybeSingle();
+    if (profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

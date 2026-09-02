@@ -239,6 +239,16 @@ export type UserMotivator = Owned & {
   created_at: Timestamp;
 };
 
+export type IntakeScore = Owned & {
+  dimension_kind: "barrier" | "motivator";
+  dimension_code: string;
+  score: number;
+  rule_id: string;
+  rule_version: string;
+  trace: TraceEntry[];
+  created_at: Timestamp;
+};
+
 /** Exactly one row. */
 export type UserSettings = Owned & {
   weekly_session_target: number;

@@ -1,4 +1,3 @@
-import constraintsSeed from "../../../seed/constraints.json";
 import exercisesSeed from "../../../seed/exercises.json";
 import habitsSeed from "../../../seed/habits.json";
 import metricsSeed from "../../../seed/metrics.json";
@@ -6,7 +5,6 @@ import metricsSeed from "../../../seed/metrics.json";
 import type { createClient } from "@/lib/supabase/server";
 import type {
   ExerciseFlag,
-  GatePredicate,
   HabitConfig,
   JointRange,
   LoadingAxis,
@@ -26,6 +24,9 @@ function fail(table: string, message: string | undefined): never {
  * Idempotent first-login seed. Uses the caller's RLS session so it works on
  * Vercel without a service role. `rotation_state` is written last and used as
  * the "already seeded" marker.
+ *
+ * Constraint rules from seed/constraints.json are not seeded here; owner rows
+ * load from seed/personal.sql when chosen. New users start with none.
  */
 export async function ensureSeeded(supabase: Client): Promise<void> {
   const { data: rotation } = await supabase
@@ -35,24 +36,10 @@ export async function ensureSeeded(supabase: Client): Promise<void> {
   if (rotation) return;
 
   const seedVersion = {
-    constraints: constraintsSeed.version,
     exercises: exercisesSeed.version,
     habits: habitsSeed.version,
     metrics: metricsSeed.version,
   };
-
-  for (const rule of constraintsSeed.rules) {
-    const { error } = await supabase.from("constraint_rules").upsert(
-      {
-        rule_id: rule.rule_id,
-        description: rule.description,
-        predicate: rule.predicate as GatePredicate,
-        seed_version: seedVersion.constraints,
-      },
-      { onConflict: "user_id,rule_id" },
-    );
-    if (error) fail("constraint_rules", error.message);
-  }
 
   const { data: existingExercises } = await supabase.from("exercises").select("id, slug");
   const exerciseIdBySlug = new Map(
