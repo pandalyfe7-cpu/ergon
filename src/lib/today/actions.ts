@@ -52,7 +52,7 @@ export async function logTodayHabit(
     });
   }
 
-  revalidatePath("/");
+  revalidatePath("/today");
   return { ok: true };
 }
 
@@ -100,6 +100,6 @@ export async function logTodayMetric(
   );
   if (error) return { error: error.message };
 
-  revalidatePath("/");
+  revalidatePath("/today");
   return { ok: true };
 }

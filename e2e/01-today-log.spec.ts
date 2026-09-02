@@ -21,7 +21,7 @@ test.describe("today habit and metric logging", () => {
   });
 
   test("logs highlighted habit and metric with trace affordances", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/today");
     await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
 
     const firstHabit = page.getByTestId("today-item-study-blocks");
@@ -29,6 +29,7 @@ test.describe("today habit and metric logging", () => {
     await firstHabit.getByRole("button", { name: "Log Study blocks" }).click();
     await expect(firstHabit.getByText("Logged")).toBeVisible();
 
+    await expect(firstHabit.getByRole("button", { name: "Trace" })).toBeVisible();
     await firstHabit.getByRole("button", { name: "Trace" }).click();
     await expect(firstHabit.locator("pre")).toContainText("today_habit_log@");
     await expect(firstHabit.locator("pre")).toContainText("habit_events");

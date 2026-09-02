@@ -26,7 +26,7 @@ setup("provision, seed, and sign in the E2E user", async ({ page }) => {
   await page.getByLabel("Email").fill(E2E_EMAIL);
   await page.getByLabel("Password").fill(E2E_PASSWORD);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await page.waitForURL("/");
+  await page.waitForURL("/today");
   await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
 
   mkdirSync(join(__dirname, ".auth"), { recursive: true });

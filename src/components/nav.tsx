@@ -30,7 +30,7 @@ function icon(path: React.ReactNode) {
 
 const ITEMS: NavItem[] = [
   {
-    href: "/",
+    href: "/today",
     label: "Today",
     icon: icon(
       <>
@@ -97,7 +97,7 @@ const ITEMS: NavItem[] = [
 ];
 
 function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
+  if (href === "/today") return pathname === "/today";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -158,7 +158,7 @@ export function Nav() {
         className="border-border hidden shrink-0 border-r md:sticky md:top-0 md:flex md:h-dvh md:w-60 md:flex-col 3xl:w-70"
       >
         <div className="px-4 pt-6 pb-4">
-          <Link href="/" className="text-text-hi text-xl font-semibold">
+          <Link href="/today" className="text-text-hi text-xl font-semibold">
             ERGOS
           </Link>
         </div>

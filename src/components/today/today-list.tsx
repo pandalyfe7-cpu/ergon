@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { TraceBlock } from "@/components/trace-block";
 import { useToast } from "@/components/toast";
@@ -68,6 +68,10 @@ function TodayListRow({ item, highlighted }: { item: TodayItem; highlighted: boo
   );
 }
 
+function formatPendingTime(date: Date): string {
+  return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+}
+
 function HabitRow({
   item,
   highlighted,
@@ -79,12 +83,29 @@ function HabitRow({
   const { fail } = useToast();
   const [pending, start] = useTransition();
   const [pulse, setPulse] = useState(false);
+  const [optimisticLogged, setOptimisticLogged] = useState(false);
+  const [pendingAt, setPendingAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (item.logged) {
+      setOptimisticLogged(false);
+      setPendingAt(null);
+    }
+  }, [item.logged]);
+
+  const displayedLogged = item.logged || optimisticLogged;
+  const isPending = optimisticLogged && !item.logged;
 
   function mark() {
     if (item.logged || pending) return;
+    const stampedAt = formatPendingTime(new Date());
+    setOptimisticLogged(true);
+    setPendingAt(stampedAt);
     start(async () => {
       const result = await call(logTodayHabit(item.slug));
       if ("error" in result) {
+        setOptimisticLogged(false);
+        setPendingAt(null);
         fail(`Could not log habit: ${result.error}`, mark);
         return;
       }
@@ -99,18 +120,23 @@ function HabitRow({
       <Card
         className={cx(
           highlighted && "border-accent bg-accent-soft border-2",
-          item.logged && "border-positive/40",
+          displayedLogged && "border-positive/40",
           pulse && "pulse-positive",
         )}
       >
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-text-hi text-sm font-medium">{item.name}</p>
-            {item.logged && (
-              <p className="text-positive mt-1 text-xs">Logged</p>
+            {displayedLogged && (
+              <div className="mt-1">
+                <p className="text-positive text-xs">Logged</p>
+                {isPending && pendingAt && (
+                  <p className="text-text-low num text-xs">{pendingAt}</p>
+                )}
+              </div>
             )}
           </div>
-          {!item.logged && (
+          {!displayedLogged && (
             <Button
               variant={highlighted ? "primary" : "secondary"}
               disabled={pending}

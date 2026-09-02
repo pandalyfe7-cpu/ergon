@@ -152,6 +152,6 @@ export async function completeOnboarding(): Promise<void> {
   });
   if (profileResult.error) throw new Error(profileResult.error);
 
-  revalidatePath("/");
-  redirect("/");
+  revalidatePath("/today");
+  redirect("/today");
 }

@@ -48,7 +48,7 @@ export function usePaletteCommands(commands: PaletteCommand[]) {
 }
 
 const NAV_TARGETS = [
-  { id: "nav-today", label: "Today", href: "/" },
+  { id: "nav-today", label: "Today", href: "/today" },
   { id: "nav-guidance", label: "Guidance", href: "/guidance" },
   { id: "nav-metrics", label: "Metrics", href: "/metrics" },
   { id: "nav-habits", label: "Habits", href: "/habits" },

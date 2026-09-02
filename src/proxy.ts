@@ -5,7 +5,7 @@ import { supabaseEnv } from "@/lib/supabase/env";
 import { ONBOARDING_COMPLETE_STEP } from "@/lib/onboarding/constants";
 
 function isAppRoute(pathname: string): boolean {
-  if (pathname === "/") return true;
+  if (pathname === "/today") return true;
   const prefixes = [
     "/guidance",
     "/metrics",
@@ -72,6 +72,19 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (user && pathname === "/") {
+    const { data: profile } = await supabase
+      .from("user_profile")
+      .select("onboarding_step")
+      .maybeSingle();
+    const complete =
+      profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP;
+    const url = request.nextUrl.clone();
+    url.pathname = complete ? "/today" : "/onboarding";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
+
   if (user && (pathname === "/sign-in" || pathname === "/sign-up" || pathname === "/welcome")) {
     const url = request.nextUrl.clone();
     const { data: profile } = await supabase
@@ -80,7 +93,7 @@ export async function proxy(request: NextRequest) {
       .maybeSingle();
     const complete =
       profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP;
-    url.pathname = complete ? "/" : "/onboarding";
+    url.pathname = complete ? "/today" : "/onboarding";
     url.search = "";
     return NextResponse.redirect(url);
   }
@@ -107,7 +120,7 @@ export async function proxy(request: NextRequest) {
       .maybeSingle();
     if (profile != null && profile.onboarding_step >= ONBOARDING_COMPLETE_STEP) {
       const url = request.nextUrl.clone();
-      url.pathname = "/";
+      url.pathname = "/today";
       url.search = "";
       return NextResponse.redirect(url);
     }

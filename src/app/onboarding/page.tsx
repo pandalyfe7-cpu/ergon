@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
   await ensureSeeded(supabase);
 
   const state = await getOnboardingState(supabase);
-  if (state.complete) redirect("/");
+  if (state.complete) redirect("/today");
 
   const [{ data: goals }, { data: profile }, { data: habits }, { data: metrics }] =
     await Promise.all([

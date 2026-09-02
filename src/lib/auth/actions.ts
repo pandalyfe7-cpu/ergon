@@ -30,7 +30,7 @@ export async function signIn(
   if (error) return { message: "Sign in failed. Email or password was not accepted." };
 
   const onboarding = await getOnboardingState(supabase);
-  redirect(onboarding.complete ? "/" : "/onboarding");
+  redirect(onboarding.complete ? "/today" : "/onboarding");
 }
 
 export async function signUp(
@@ -67,7 +67,8 @@ export async function signUp(
     return { message: "Confirm your email, then sign in.", confirm: true };
   }
 
-  redirect("/");
+  const onboarding = await getOnboardingState(supabase);
+  redirect(onboarding.complete ? "/today" : "/onboarding");
 }
 
 export async function signOut(): Promise<void> {

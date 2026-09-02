@@ -26,7 +26,7 @@ test.describe("onboarding gate and flow", () => {
   test("blocks Today, Progress, Train, and Settings until onboarding completes", async ({
     page,
   }) => {
-    for (const path of ["/", "/metrics", "/train", "/settings"]) {
+    for (const path of ["/today", "/metrics", "/train", "/settings"]) {
       await page.goto(path);
       await expect(page).toHaveURL(/\/onboarding$/);
     }
@@ -47,7 +47,7 @@ test.describe("onboarding gate and flow", () => {
     await expect(plan.getByText("Training adherence", { exact: false })).toBeVisible();
 
     await page.getByRole("button", { name: "Continue to Today" }).click();
-    await expect(page).toHaveURL("/");
+    await expect(page).toHaveURL("/today");
     await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
 
     expect(await getOnboardingStep(userId)).toBe(4);
