@@ -6,7 +6,7 @@
  */
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { useToast } from "@/components/toast";
 import { Button, CheckIcon, Chip, cx } from "@/components/ui";
@@ -62,8 +62,13 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
   const { fail } = useToast();
   const [, startTransition] = useTransition();
   const [marked, setMarked] = useState(habit.markedToday);
+  const [state, setState] = useState(habit.state);
   const [pulse, setPulse] = useState(false);
   const [showStates, setShowStates] = useState(false);
+
+  useEffect(() => {
+    setState(habit.state);
+  }, [habit.state]);
 
   function mark(kind: "completed" | "floor") {
     setMarked(true);
@@ -80,20 +85,23 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
     });
   }
 
-  function moveTo(state: HabitState) {
+  function moveTo(next: HabitState) {
     setShowStates(false);
+    const prev = state;
+    setState(next);
     startTransition(async () => {
-      const result = await call(setHabitState(habit.slug, state));
+      const result = await call(setHabitState(habit.slug, next));
       if ("error" in result) {
-        fail(`State not changed: ${result.error}`, () => moveTo(state));
+        setState(prev);
+        fail(`State not changed: ${result.error}`, () => moveTo(next));
         return;
       }
       router.refresh();
     });
   }
 
-  const overdue = !marked && habit.daysLeft <= 0 && habit.state !== "dormant";
-  const dueSoon = !marked && habit.daysLeft === 1 && habit.state !== "dormant";
+  const overdue = !marked && habit.daysLeft <= 0 && state !== "dormant";
+  const dueSoon = !marked && habit.daysLeft === 1 && state !== "dormant";
 
   return (
     <li
@@ -108,28 +116,28 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
         <div className="relative shrink-0">
           <button
             className="rounded-chip focus-visible:outline-accent"
-            aria-label={`Change state of ${habit.name}, currently ${STATE_LABELS[habit.state]}`}
+            aria-label={`Change state of ${habit.name}, currently ${STATE_LABELS[state]}`}
             title={habit.stateMeaning}
             onClick={() => setShowStates((v) => !v)}
           >
-            <Chip tone={STATE_TONES[habit.state]} title={habit.stateMeaning}>
-              {STATE_LABELS[habit.state]}
+            <Chip tone={STATE_TONES[state]} title={habit.stateMeaning}>
+              {STATE_LABELS[state]}
             </Chip>
           </button>
           {showStates && (
             <div className="border-border bg-surface-2 shadow-overlay rounded-card absolute right-0 z-10 mt-1 w-36 border p-1">
-              {(Object.keys(STATE_LABELS) as HabitState[]).map((state) => (
+              {(Object.keys(STATE_LABELS) as HabitState[]).map((option) => (
                 <button
-                  key={state}
+                  key={option}
                   className={cx(
                     "rounded-control block w-full px-2.5 py-1.5 text-left text-sm",
-                    state === habit.state
+                    option === state
                       ? "text-accent"
                       : "text-text-mid hover:bg-surface hover:text-text-hi",
                   )}
-                  onClick={() => moveTo(state)}
+                  onClick={() => moveTo(option)}
                 >
-                  {STATE_LABELS[state]}
+                  {STATE_LABELS[option]}
                 </button>
               ))}
             </div>
@@ -146,7 +154,7 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
           <span className="text-positive inline-flex items-center gap-1 text-xs">
             <CheckIcon /> marked today
           </span>
-        ) : habit.state === "dormant" ? (
+        ) : state === "dormant" ? (
           <span className="text-text-low text-xs">paused; any mark resumes it</span>
         ) : overdue ? (
           <span className="text-warning text-xs">
@@ -181,7 +189,7 @@ export function HabitCard({ habit, index }: { habit: HabitCardData; index: numbe
           <p className="text-text-low text-xs">{habit.advanceRule}</p>
         ) : (
           <div className="flex shrink-0 gap-2">
-            {(overdue || habit.state === "recover") && (
+            {(overdue || state === "recover") && (
               <Button
                 variant="quiet"
                 className="px-2.5 py-1.5 text-xs"

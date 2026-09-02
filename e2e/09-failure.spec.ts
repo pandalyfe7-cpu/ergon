@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { resetTodaysRecommendations, testUserId } from "./db";
+import { clearTodayLogs, resetTodaysRecommendations, testUserId } from "./db";
 
 /**
  * Failure paths: server-action POSTs are aborted at the network layer, and
@@ -19,28 +19,23 @@ async function unblockWrites(page: Page) {
   await page.unroute("**/*");
 }
 
-test("morning entry write fails, reverts, and retries", async ({ page }) => {
-  await page.goto("/");
-  const edit = page.getByRole("button", { name: "Edit", exact: true });
-  const field = page.getByLabel("Sleep hours");
-  await expect(edit.or(field).first()).toBeVisible();
-  if (await edit.isVisible()) await edit.click();
-  await field.fill("8");
-  await page.getByLabel("Quality 1-10").fill("8");
+test("habit log fails, reverts, and retries", async ({ page }) => {
+  await clearTodayLogs(await testUserId());
+  await page.goto("/today");
+  const habit = page.getByTestId("today-item-study-blocks");
+  await expect(habit.getByRole("button", { name: "Log Study blocks" })).toBeVisible();
 
   await blockWrites(page);
-  await page.getByRole("button", { name: "Save entry" }).click();
+  await habit.getByRole("button", { name: "Log Study blocks" }).click();
 
-  const alert = page.getByRole("alert").filter({ hasText: "Morning entry not saved" });
+  const alert = page.getByRole("alert").filter({ hasText: "Could not log habit" });
   await expect(alert).toBeVisible();
   await expect(alert).toContainText("Network error");
-  // Optimistic collapse reverted: the form is open again.
-  await expect(page.getByLabel("Sleep hours")).toBeVisible();
+  await expect(habit.getByRole("button", { name: "Log Study blocks" })).toBeVisible();
 
   await unblockWrites(page);
   await alert.getByRole("button", { name: "Retry" }).click();
-  await expect(page.getByText("Morning entry saved")).toBeVisible();
-  await expect(page.getByText("8 h").first()).toBeVisible();
+  await expect(habit.getByText("Logged")).toBeVisible();
 });
 
 test("recommendation accept fails, reverts, and retries", async ({ page }) => {

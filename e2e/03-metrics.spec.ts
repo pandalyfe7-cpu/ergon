@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
  */
 
 test("quick-add bodyweight feeds the dashboard", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/today");
   await page.keyboard.press("ControlOrMeta+j");
   await expect(page.getByRole("dialog", { name: "Quick add" })).toBeVisible();
   await page.getByRole("button", { name: "Log bodyweight" }).click();

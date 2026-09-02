@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
  */
 
 const SCREENS = [
-  "/",
+  "/today",
   "/guidance",
   "/metrics",
   "/metrics?w=30",

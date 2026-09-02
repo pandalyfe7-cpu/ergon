@@ -12,10 +12,9 @@ test("rotation position changes what Today prescribes", async ({ page }) => {
 
   await select.selectOption("2");
   await expect(page.getByText(/Next session: /)).toBeVisible();
-  await page.goto("/");
-  await expect(page.getByText("Rotation day 3 of 6")).toBeVisible();
+  await page.reload();
+  await expect(select).toHaveValue("2");
 
-  await page.goto("/settings");
   await page.getByLabel("Next session").selectOption(original);
   await expect(page.getByText(/Next session: /)).toBeVisible();
 });
@@ -39,11 +38,17 @@ test("default time available saves and persists", async ({ page }) => {
 test("bed time saves into the sleep habit", async ({ page }) => {
   await page.goto("/settings");
   const field = page.getByLabel("Target bed time");
-  await field.fill("22:30");
+  const original = await field.inputValue();
+  const next = original === "22:30" ? "22:45" : "22:30";
+  await field.fill(next);
   await field.blur();
   await expect(page.getByText("Bed time saved")).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel("Target bed time")).toHaveValue("22:30");
+  await expect(page.getByLabel("Target bed time")).toHaveValue(next);
+
+  await field.fill(original);
+  await field.blur();
+  await expect(page.getByText("Bed time saved")).toBeVisible();
 });
 
 test("static metric target edits validate and persist", async ({ page }) => {

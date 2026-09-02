@@ -12,24 +12,24 @@ const SCREENS: [string, string][] = [
   ["History", "/history"],
   ["Food", "/log-food"],
   ["Settings", "/settings"],
-  ["Today", "/"],
+  ["Today", "/today"],
 ];
 
 test("Ctrl+K navigates to every screen by keyboard alone", async ({ page }) => {
   test.setTimeout(90_000);
-  await page.goto("/");
+  await page.goto("/today");
   for (const [label, path] of SCREENS) {
     await page.keyboard.press("ControlOrMeta+k");
     const palette = page.getByRole("dialog", { name: "Command palette" });
     await expect(palette).toBeVisible();
     await palette.getByLabel("Command").fill(label);
     await page.keyboard.press("Enter");
-    await page.waitForURL(path === "/" ? new RegExp("/$") : new RegExp(path));
+    await page.waitForURL(new RegExp(`${path.replace("/", "\\/")}$`));
   }
 });
 
 test("palette filters and closes on Escape", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/today");
   await page.keyboard.press("ControlOrMeta+k");
   const palette = page.getByRole("dialog", { name: "Command palette" });
   await palette.getByLabel("Command").fill("zzz-no-match");
@@ -39,7 +39,7 @@ test("palette filters and closes on Escape", async ({ page }) => {
 });
 
 test("Ctrl+J quick-add offers bodyweight, food, and habit marks", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/today");
   await page.keyboard.press("ControlOrMeta+j");
   const quickAdd = page.getByRole("dialog", { name: "Quick add" });
   await expect(quickAdd).toBeVisible();

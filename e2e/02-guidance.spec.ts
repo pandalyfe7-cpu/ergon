@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import {
   clearOnboardingProfile,
+  ensureTodayPlan,
   resetTodaysRecommendations,
   setOnboardingStep,
   testUserId,
@@ -23,20 +24,19 @@ test.beforeAll(async () => {
 });
 
 test.describe("onboarding incomplete", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     await clearOnboardingProfile(userId);
     await resetTodaysRecommendations(userId);
-    await page.goto("/guidance");
   });
 
-  test("renders not-ready and fires zero recommendation cards", async ({ page }) => {
-    await expect(
-      page.getByText("Recommendations stay off until intake steps 1 to 4 are recorded."),
-    ).toBeVisible();
-    await expect(page.getByText("Not ready")).toBeVisible();
-    await expect(page.getByRole("article")).toHaveCount(0);
-    await expect(page.getByText("Nothing pressing.")).toHaveCount(0);
-    await expect(page.getByText("Cold start")).toHaveCount(0);
+  test.afterEach(async () => {
+    await setOnboardingStep(userId, 4);
+    await ensureTodayPlan(userId);
+  });
+
+  test("gates Guidance behind onboarding", async ({ page }) => {
+    await page.goto("/guidance");
+    await expect(page).toHaveURL(/\/onboarding$/);
   });
 });
 
@@ -48,7 +48,8 @@ test.describe("onboarding step 4", () => {
   });
 
   test.afterAll(async () => {
-    await clearOnboardingProfile(userId);
+    await setOnboardingStep(userId, 4);
+    await ensureTodayPlan(userId);
   });
 
   test("ranked cards show reason, time, rule ids, and trace", async ({ page }) => {
