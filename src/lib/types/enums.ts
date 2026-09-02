@@ -112,3 +112,35 @@ export const RECOMMENDATION_STATUSES = [
   "expired",
 ] as const;
 export type RecommendationStatus = (typeof RECOMMENDATION_STATUSES)[number];
+
+/** What has ended previous attempts. Check-constrained on user_barriers.code. */
+export const BARRIER_CODES = [
+  "time_scarcity",
+  "energy_crash",
+  "pain_flare",
+  "travel",
+  "motivation_drop",
+  "all_or_nothing",
+  "schedule_chaos",
+  "equipment_access",
+  "social_pressure",
+  "boredom",
+  "injury_fear",
+  "cost",
+] as const;
+export type BarrierCode = (typeof BARRIER_CODES)[number];
+
+/** What keeps going. Check-constrained on user_motivators.code. */
+export const MOTIVATOR_CODES = [
+  "mastery",
+  "autonomy",
+  "competition",
+  "appearance",
+  "health_longevity",
+  "social_connection",
+  "routine_comfort",
+  "novelty",
+  "proving_others_wrong",
+  "capability_restoration",
+] as const;
+export type MotivatorCode = (typeof MOTIVATOR_CODES)[number];

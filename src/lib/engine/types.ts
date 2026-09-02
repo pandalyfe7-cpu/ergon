@@ -92,4 +92,9 @@ export type EngineOutput = {
   /** Cold start only: what the engine is waiting on, stated plainly. */
   waitingOn: string[];
   engineVersion: string;
+  /**
+   * Set when intake is incomplete. The engine did not run. Optional so
+   * runEngine's existing returns stay valid; a missing or null value means ready.
+   */
+  notReady?: string | null;
 };

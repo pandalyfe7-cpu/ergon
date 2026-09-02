@@ -108,3 +108,20 @@ export async function testUserId(): Promise<string> {
   if (rows.length === 0) throw new Error("E2E user missing; run the setup project first.");
   return rows[0].id;
 }
+
+/** Explicit intake unlock. Missing profile stays gated; this is not a default. */
+export async function setOnboardingStep(userId: string, step: number): Promise<void> {
+  await query(
+    `insert into public.user_profile (user_id, onboarding_step, updated_at)
+     values ($1, $2, now())
+     on conflict (user_id) do update
+       set onboarding_step = excluded.onboarding_step,
+           updated_at = now()`,
+    [userId, step],
+  );
+}
+
+/** Remove the profile row so the user is gated again (unknown, not step 0). */
+export async function clearOnboardingProfile(userId: string): Promise<void> {
+  await query(`delete from public.user_profile where user_id = $1`, [userId]);
+}

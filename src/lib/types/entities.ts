@@ -12,9 +12,11 @@
 
 import type { ExerciseConstraint } from "./constraints";
 import type {
+  BarrierCode,
   DismissReason,
   HabitState,
   MealSlot,
+  MotivatorCode,
   ProgressionRule,
   RecommendationKind,
   RecommendationStatus,
@@ -184,6 +186,57 @@ export type WaterLog = Owned & {
 export type BodyweightLog = Owned & {
   weight_lb: number;
   logged_at: Timestamp;
+};
+
+/**
+ * Intake profile. Keyed by user_id (no separate id). Missing row means
+ * onboarding has not started; that is unknown, not step 0.
+ */
+export type UserProfile = {
+  user_id: UUID;
+  age_band: string | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  training_years: number | null;
+  baseline_weekly_days: number | null;
+  capacity: Record<string, unknown>;
+  onboarding_step: number;
+  onboarding_completed_at: Timestamp | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+};
+
+export type UserConstraint = Owned & {
+  kind: "injury" | "surgery" | "hardware" | "joint" | "systemic" | "cognitive" | "other";
+  label: string;
+  body_region: string | null;
+  laterality: "left" | "right" | "bilateral" | "n/a" | null;
+  severity: "mild" | "moderate" | "severe" | null;
+  blocks_patterns: string[];
+  load_cap_pct: number | null;
+  rom_notes: string | null;
+  active: boolean;
+  created_at: Timestamp;
+};
+
+export type UserGoal = Owned & {
+  rank: number;
+  outcome: string;
+  target_date: string | null;
+  metric: string | null;
+  created_at: Timestamp;
+};
+
+export type UserBarrier = Owned & {
+  code: BarrierCode;
+  note: string | null;
+  created_at: Timestamp;
+};
+
+export type UserMotivator = Owned & {
+  code: MotivatorCode;
+  note: string | null;
+  created_at: Timestamp;
 };
 
 /** Exactly one row. */

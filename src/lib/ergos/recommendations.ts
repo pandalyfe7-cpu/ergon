@@ -21,7 +21,36 @@ export type GuidanceData = {
 };
 
 export async function refreshRecommendations(ctx: ErgosContext): Promise<GuidanceData> {
+  const { data: profile } = await ctx.supabase
+    .from("user_profile")
+    .select("onboarding_step")
+    .maybeSingle();
+
   const loaded = await loadEngineData(ctx);
+
+  // Missing profile is unknown, not step 0. Do not insert a default row.
+  if (profile == null || profile.onboarding_step < 4) {
+    const now = new Date().toISOString();
+    await ctx.supabase
+      .from("recommendations")
+      .update({ status: "expired", status_at: now })
+      .eq("rec_date", ctx.today)
+      .eq("status", "active");
+
+    return {
+      output: {
+        recommendations: [],
+        coldStart: false,
+        waitingOn: [],
+        engineVersion: ENGINE_VERSION,
+        notReady: "Recommendations stay off until intake steps 1 to 4 are recorded.",
+      },
+      rows: [],
+      actedOn: [],
+      loaded,
+    };
+  }
+
   const output = runEngine(loaded.state);
 
   const { data: existing } = await ctx.supabase

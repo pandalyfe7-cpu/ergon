@@ -25,6 +25,11 @@ import type {
   Recommendation,
   RotationState,
   Session,
+  UserBarrier,
+  UserConstraint,
+  UserGoal,
+  UserMotivator,
+  UserProfile,
   UserSettings,
   WaterLog,
 } from "./entities";
@@ -120,6 +125,14 @@ export type Database = {
         | "snoozed_until"
       >;
       engine_weights: Table<EngineWeightsRow, "updated_at">;
+      user_profile: Table<UserProfile, "capacity" | "onboarding_step" | "updated_at">;
+      user_constraints: Table<
+        UserConstraint,
+        "blocks_patterns" | "active" | "body_region" | "laterality" | "severity" | "load_cap_pct" | "rom_notes"
+      >;
+      user_goals: Table<UserGoal, "target_date" | "metric">;
+      user_barriers: Table<UserBarrier, "note">;
+      user_motivators: Table<UserMotivator, "note">;
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

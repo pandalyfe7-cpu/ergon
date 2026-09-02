@@ -1,11 +1,19 @@
 import { expect, test } from "@playwright/test";
 
-import { resetTodaysRecommendations, testUserId } from "./db";
+import {
+  clearOnboardingProfile,
+  resetTodaysRecommendations,
+  setOnboardingStep,
+  testUserId,
+} from "./db";
 
 /**
  * Guidance: ranked list, trace expansion, accept / dismiss (fixed reasons) /
  * snooze, acted-on list, weekly rule feedback. Recommendations reset before
  * each test so every action starts from a regenerated list.
+ *
+ * A missing profile (or onboarding_step < 4) is not-ready. Rec tests must set
+ * step = 4 explicitly; nothing here backfills that for the seeded user.
  */
 
 let userId: string;
@@ -14,63 +22,88 @@ test.beforeAll(async () => {
   userId = await testUserId();
 });
 
-test.beforeEach(async ({ page }) => {
-  await resetTodaysRecommendations(userId);
-  await page.goto("/guidance");
+test.describe("onboarding incomplete", () => {
+  test.beforeEach(async ({ page }) => {
+    await clearOnboardingProfile(userId);
+    await resetTodaysRecommendations(userId);
+    await page.goto("/guidance");
+  });
+
+  test("renders not-ready and fires zero recommendation cards", async ({ page }) => {
+    await expect(
+      page.getByText("Recommendations stay off until intake steps 1 to 4 are recorded."),
+    ).toBeVisible();
+    await expect(page.getByText("Not ready")).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(0);
+    await expect(page.getByText("Nothing pressing.")).toHaveCount(0);
+    await expect(page.getByText("Cold start")).toHaveCount(0);
+  });
 });
 
-test("ranked cards show reason, time, rule ids, and trace", async ({ page }) => {
-  const card = page.getByRole("article").first();
-  await expect(card).toBeVisible();
-  await expect(card.getByText("min", { exact: false }).first()).toBeVisible();
+test.describe("onboarding step 4", () => {
+  test.beforeEach(async ({ page }) => {
+    await setOnboardingStep(userId, 4);
+    await resetTodaysRecommendations(userId);
+    await page.goto("/guidance");
+  });
 
-  await card.getByRole("button", { name: "Why" }).click();
-  await expect(card.getByText("score", { exact: false })).toBeVisible();
-  await expect(card.getByText("engine", { exact: false })).toBeVisible();
-});
+  test.afterAll(async () => {
+    await clearOnboardingProfile(userId);
+  });
 
-test("accept hides the card and records it under acted on", async ({ page }) => {
-  const card = page.getByRole("article").first();
-  await expect(card).toBeVisible();
-  await card.getByRole("button", { name: "Accept" }).click();
+  test("ranked cards show reason, time, rule ids, and trace", async ({ page }) => {
+    const card = page.getByRole("article").first();
+    await expect(card).toBeVisible();
+    await expect(card.getByText("min", { exact: false }).first()).toBeVisible();
 
-  await expect(page.getByText("Accepted").first()).toBeVisible();
-  await expect(page.getByText("Acted on today")).toBeVisible();
-  await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
-});
+    await card.getByRole("button", { name: "Why" }).click();
+    await expect(card.getByText("score", { exact: false })).toBeVisible();
+    await expect(card.getByText("engine", { exact: false })).toBeVisible();
+  });
 
-test("dismiss requires a fixed reason from the list", async ({ page }) => {
-  const card = page.getByRole("article").first();
-  await expect(card).toBeVisible();
-  await card.getByRole("button", { name: "Dismiss" }).click();
+  test("accept hides the card and records it under acted on", async ({ page }) => {
+    const card = page.getByRole("article").first();
+    await expect(card).toBeVisible();
+    await card.getByRole("button", { name: "Accept" }).click();
 
-  // Fixed reasons, never free text.
-  await expect(page.getByRole("button", { name: "Not today" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Takes too long" })).toBeVisible();
-  await page.getByRole("button", { name: "Not today" }).click();
+    await expect(page.getByText("Accepted").first()).toBeVisible();
+    await expect(page.getByText("Acted on today")).toBeVisible();
+    await expect(page.getByText("accepted", { exact: true }).first()).toBeVisible();
+  });
 
-  await expect(page.getByText("Dismissed").first()).toBeVisible();
-  await expect(page.getByText("Acted on today")).toBeVisible();
-});
+  test("dismiss requires a fixed reason from the list", async ({ page }) => {
+    const card = page.getByRole("article").first();
+    await expect(card).toBeVisible();
+    await card.getByRole("button", { name: "Dismiss" }).click();
 
-test("snooze hides the card for three hours", async ({ page }) => {
-  const card = page.getByRole("article").first();
-  await expect(card).toBeVisible();
-  await card.getByRole("button", { name: "Snooze" }).click();
-  await expect(page.getByText("Snoozed for 3 hours")).toBeVisible();
-});
+    // Fixed reasons, never free text.
+    await expect(page.getByRole("button", { name: "Not today" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Takes too long" })).toBeVisible();
+    await page.getByRole("button", { name: "Not today" }).click();
 
-test("weekly rule feedback waits until ten shown", async ({ page }) => {
-  const placeholder = page.getByText(
-    "Rule feedback appears once rules have been shown 10 times.",
-  );
-  const table = page.locator("table").getByText("shown");
-  await expect(placeholder.or(table).first()).toBeVisible();
-});
+    await expect(page.getByText("Dismissed").first()).toBeVisible();
+    await expect(page.getByText("Acted on today")).toBeVisible();
+  });
 
-test("cold start limits recommendations and says why", async ({ page }) => {
-  await expect(page.getByText("Cold start").first()).toBeVisible();
-  // Never more than four cards, cold start or not.
-  const count = await page.getByRole("article").count();
-  expect(count).toBeLessThanOrEqual(4);
+  test("snooze hides the card for three hours", async ({ page }) => {
+    const card = page.getByRole("article").first();
+    await expect(card).toBeVisible();
+    await card.getByRole("button", { name: "Snooze" }).click();
+    await expect(page.getByText("Snoozed for 3 hours")).toBeVisible();
+  });
+
+  test("weekly rule feedback waits until ten shown", async ({ page }) => {
+    const placeholder = page.getByText(
+      "Rule feedback appears once rules have been shown 10 times.",
+    );
+    const table = page.locator("table").getByText("shown");
+    await expect(placeholder.or(table).first()).toBeVisible();
+  });
+
+  test("cold start limits recommendations and says why", async ({ page }) => {
+    await expect(page.getByText("Cold start").first()).toBeVisible();
+    // Never more than four cards, cold start or not.
+    const count = await page.getByRole("article").count();
+    expect(count).toBeLessThanOrEqual(4);
+  });
 });

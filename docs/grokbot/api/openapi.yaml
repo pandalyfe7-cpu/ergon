@@ -1,0 +1,409 @@
+openapi: 3.1.0
+info:
+  title: Grokbot API
+  version: 1.0.0
+  description: >
+    Stack-agnostic HTTP contracts. No vendor SDKs. Athlete traffic uses
+    POST /v1/chat/turns only. Other routes are operator principals.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Grokbot-Spec
+servers:
+  - url: https://grokbot.example.local/v1
+    description: Placeholder; bind at migration
+security:
+  - athleteBearer: []
+  - operatorBearer: []
+
+tags:
+  - name: athlete
+  - name: knowledge
+  - name: experiments
+  - name: stress
+  - name: releases
+  - name: telemetry
+
+paths:
+  /v1/chat/turns:
+    post:
+      tags: [athlete]
+      security: [{ athleteBearer: [] }]
+      summary: One athlete turn
+      operationId: postChatTurn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatTurnRequest"
+      responses:
+        "200":
+          description: Chatbot reply in the coach voice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatTurnResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Not ready (missing profile or onboarding_step < 4)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /v1/knowledge/docs/{id}:
+    get:
+      tags: [knowledge]
+      security: [{ athleteBearer: [] }, { operatorBearer: [] }]
+      summary: Doc metadata and provenance if in caller's env pointer
+      operationId: getKnowledgeDoc
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: X-Grokbot-Env
+          in: header
+          schema: { type: string, enum: [prod, canary] }
+      responses:
+        "200":
+          description: Provenance-bearing doc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeDoc"
+        "404":
+          description: Missing or not in env pointer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /v1/knowledge/ingest:
+    post:
+      tags: [knowledge]
+      security: [{ operatorBearer: [] }]
+      summary: Library Agent ingest; always staging
+      operationId: postKnowledgeIngest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source_url]
+              properties:
+                source_url: { type: string, format: uri }
+      responses:
+        "201":
+          description: Staging doc created or duplicate hash
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngestResult"
+        "400":
+          description: Rejected ingest
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /v1/experiments:
+    post:
+      tags: [experiments]
+      security: [{ operatorBearer: [] }]
+      summary: Hypothesis Agent draft experiment
+      operationId: postExperiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Experiment"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experiment"
+
+  /v1/stress-tests/runs:
+    post:
+      tags: [stress]
+      security: [{ operatorBearer: [] }]
+      summary: Run a stress suite against a candidate bundle
+      operationId: postStressRun
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StressRunRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StressRunResult"
+
+  /v1/releases/promote:
+    post:
+      tags: [releases]
+      security: [{ operatorBearer: [] }]
+      summary: Master Brain promote (blocked if stress failed)
+      operationId: postReleasePromote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReleaseRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseResult"
+        "403":
+          description: HITL required or stress failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /v1/releases/rollback:
+    post:
+      tags: [releases]
+      security: [{ operatorBearer: [] }]
+      summary: Atomic pointer rollback
+      operationId: postReleaseRollback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RollbackRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReleaseResult"
+
+  /v1/telemetry/health:
+    get:
+      tags: [telemetry]
+      security: []
+      summary: Liveness for mocks
+      operationId: getHealth
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+
+components:
+  securitySchemes:
+    athleteBearer:
+      type: http
+      scheme: bearer
+      description: Opaque athlete token. Maps to auth.uid() on ERGOS bind.
+    operatorBearer:
+      type: http
+      scheme: bearer
+      description: Operator principal. Never the athlete token.
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+
+  schemas:
+    ErrorBody:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [unknown, refused, not_ready, unauthorized, not_found, ingest_rejected, hitl_required, stress_failed]
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    TraceEntry:
+      type: object
+      required: [path, detail, rows]
+      properties:
+        path: { type: string }
+        detail: { type: string }
+        rows:
+          type: array
+          items: { type: string }
+
+    Provenance:
+      type: object
+      required: [source_url, retrieved_at, content_hash, license, quote]
+      properties:
+        source_url: { type: string, format: uri }
+        retrieved_at: { type: string, format: date-time }
+        content_hash: { type: string }
+        license: { type: string }
+        quote: { type: string }
+
+    ChatTurnRequest:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        env:
+          type: string
+          enum: [prod, canary]
+          description: Ignored for athletes; operator/canary router may set.
+
+    ChatTurnResponse:
+      type: object
+      required: [reply, tone_pack, citations, trace, unknown, refused]
+      properties:
+        reply: { type: string }
+        tone_pack: { type: string }
+        citations:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/Provenance"
+              - type: object
+                properties:
+                  span_id: { type: string, format: uuid }
+        trace:
+          type: array
+          items:
+            $ref: "#/components/schemas/TraceEntry"
+        unknown: { type: boolean }
+        refused: { type: boolean }
+
+    KnowledgeDoc:
+      type: object
+      required: [id, version, provenance, label, status]
+      properties:
+        id: { type: string, format: uuid }
+        version: { type: integer }
+        label:
+          type: string
+          enum: [training, recovery, nutrition, constraint, clinical]
+        status:
+          type: string
+          enum: [staging, canary, prod, rolled_back]
+        title: { type: string }
+        provenance:
+          $ref: "#/components/schemas/Provenance"
+
+    IngestResult:
+      type: object
+      required: [accepted, status]
+      properties:
+        accepted: { type: boolean }
+        doc_id: { type: string, format: uuid, nullable: true }
+        status:
+          type: string
+          enum: [staging]
+        reject_reason:
+          type: string
+          nullable: true
+
+    Experiment:
+      type: object
+      required: [metric, population, stop_rules]
+      properties:
+        id: { type: string, format: uuid }
+        metric:
+          type: string
+          enum: [annoyance]
+        population: { type: object, additionalProperties: true }
+        knowledge_bundle_id: { type: string, format: uuid, nullable: true }
+        prompt_version_id: { type: string, format: uuid, nullable: true }
+        stop_rules: { type: object, additionalProperties: true }
+        hitl_required: { type: boolean }
+        status:
+          type: string
+          enum: [draft, running, aborted, completed]
+
+    StressRunRequest:
+      type: object
+      required: [suite, knowledge_bundle_id, prompt_version_id]
+      properties:
+        suite:
+          type: string
+          enum: [gate_fixtures, prompts, provenance, all]
+        knowledge_bundle_id: { type: string, format: uuid }
+        prompt_version_id: { type: string, format: uuid }
+
+    StressFailure:
+      type: object
+      required: [test_id, detail, remediation]
+      properties:
+        test_id: { type: string }
+        detail: { type: string }
+        remediation: { type: string }
+
+    StressRunResult:
+      type: object
+      required: [passed, failures]
+      properties:
+        passed: { type: boolean }
+        failures:
+          type: array
+          items:
+            $ref: "#/components/schemas/StressFailure"
+
+    ReleaseRequest:
+      type: object
+      required: [env, knowledge_bundle_id, prompt_version_id]
+      properties:
+        env:
+          type: string
+          enum: [canary, prod]
+        knowledge_bundle_id: { type: string, format: uuid }
+        prompt_version_id: { type: string, format: uuid }
+        hitl_ack_id:
+          type: string
+          description: Required for clinical or engine-adjacent bundles
+
+    RollbackRequest:
+      type: object
+      required: [env]
+      properties:
+        env:
+          type: string
+          enum: [canary, prod]
+        to_knowledge_bundle_id: { type: string, format: uuid }
+        to_prompt_version_id: { type: string, format: uuid }
+
+    ReleaseResult:
+      type: object
+      required: [env, from, to, aborted]
+      properties:
+        env:
+          type: string
+          enum: [canary, prod]
+        from:
+          type: object
+          properties:
+            knowledge_bundle_id: { type: string, format: uuid }
+            prompt_version_id: { type: string, format: uuid }
+        to:
+          type: object
+          properties:
+            knowledge_bundle_id: { type: string, format: uuid }
+            prompt_version_id: { type: string, format: uuid }
+        aborted: { type: boolean }
+        abort_reason: { type: string, nullable: true }

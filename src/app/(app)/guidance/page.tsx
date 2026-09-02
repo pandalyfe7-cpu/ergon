@@ -11,6 +11,24 @@ export default async function GuidancePage() {
   const ctx = await getErgosContext();
   // Sequential: feedback reads the rows the refresh just wrote.
   const { rows, output, actedOn } = await refreshRecommendations(ctx);
+
+  if (output.notReady) {
+    return (
+      <div className="mx-auto w-full max-w-[720px]">
+        <header className="mb-5">
+          <h1 className="text-text-hi text-xl font-semibold">Guidance</h1>
+          <p className="text-text-mid mt-0.5 max-w-[75ch] text-sm">
+            Everything worth doing right now, ranked. Every card shows its data.
+          </p>
+        </header>
+        <Card className="max-w-[75ch]">
+          <SectionLabel>Not ready</SectionLabel>
+          <p className="text-text-mid mt-2 text-sm">{output.notReady}</p>
+        </Card>
+      </div>
+    );
+  }
+
   const feedback = await getWeeklyRuleFeedback(ctx);
   const totalShown = feedback.reduce((n, row) => n + row.shown, 0);
 
