@@ -38,13 +38,13 @@ test.describe("onboarding gate and flow", () => {
     await page.getByLabel("Goal 1").fill("Train consistently at the gym");
     await page.getByRole("button", { name: "Continue" }).click();
 
-    await expect(page.getByText("Where I am and where I want to be")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "How are things right now?" })).toBeVisible();
     await page.getByRole("button", { name: "Build my plan" }).click();
 
     const plan = page.getByTestId("onboarding-plan");
     await expect(plan).toBeVisible();
-    await expect(plan.getByText("morning-entry", { exact: false })).toBeVisible();
-    await expect(plan.getByText("training-adherence", { exact: false })).toBeVisible();
+    await expect(plan.getByText("Morning entry", { exact: false })).toBeVisible();
+    await expect(plan.getByText("Training adherence", { exact: false })).toBeVisible();
 
     await page.getByRole("button", { name: "Continue to Today" }).click();
     await expect(page).toHaveURL("/");

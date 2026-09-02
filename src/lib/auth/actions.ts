@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getOnboardingState } from "@/lib/onboarding/profile";
 
 async function requestOrigin(): Promise<string | null> {
   const headerStore = await headers();
@@ -28,7 +29,8 @@ export async function signIn(
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { message: "Sign in failed. Email or password was not accepted." };
 
-  redirect("/");
+  const onboarding = await getOnboardingState(supabase);
+  redirect(onboarding.complete ? "/" : "/onboarding");
 }
 
 export async function signUp(

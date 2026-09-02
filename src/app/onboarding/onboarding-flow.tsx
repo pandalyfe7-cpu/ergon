@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { Button, Card, NumberField, SectionLabel, TextField } from "@/components/ui";
 import {
+  INTAKE_BARRIER_QUESTIONS,
+  INTAKE_MOTIVATOR_QUESTIONS,
   ONBOARDING_BARRIERS,
   ONBOARDING_COPY,
   ONBOARDING_MOTIVATORS,
@@ -26,13 +29,30 @@ type Props = {
   step: number;
   goals: Array<{ rank: number; outcome: string }>;
   plan: PlanSummary | null;
+  habitNames: Record<string, string>;
+  metricNames: Record<string, string>;
 };
 
 function formatCode(code: string): string {
   return code.replaceAll("_", " ");
 }
 
-export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
+function habitLabel(slug: string, habitNames: Record<string, string>): string {
+  return habitNames[slug] ?? formatCode(slug);
+}
+
+function metricLabel(slug: string, metricNames: Record<string, string>): string {
+  return metricNames[slug] ?? formatCode(slug);
+}
+
+export function OnboardingFlow({
+  step,
+  goals: initialGoals,
+  plan,
+  habitNames,
+  metricNames,
+}: Props) {
+  const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +73,7 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
     start(async () => {
       const result = await action();
       if (result && "error" in result) setError(result.error);
+      else router.refresh();
     });
   }
 
@@ -67,33 +88,34 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
         </div>
         <div data-testid="onboarding-plan">
           <Card>
-          <SectionLabel>Habits</SectionLabel>
-          <ul className="mt-3 space-y-2">
-            {plan.habits.map((habit) => (
-              <li key={habit.slug} className="text-text-hi text-sm">
-                {formatCode(habit.slug)} · {habit.state} · {habit.frequencyPerWeek}×/week
-              </li>
-            ))}
-          </ul>
-          <div className="mt-6">
-            <SectionLabel>Metrics</SectionLabel>
-          </div>
-          <ul className="mt-3 space-y-2">
-            {plan.metrics.map((metric) => (
-              <li key={metric.slug} className="text-text-hi text-sm">
-                {formatCode(metric.slug)}
-              </li>
-            ))}
-          </ul>
-          {plan.training && (
-            <>
+            <SectionLabel>Habits</SectionLabel>
+            <ul className="mt-3 space-y-2">
+              {plan.habits.map((habit) => (
+                <li key={habit.slug} className="text-text-hi text-sm">
+                  {habitLabel(habit.slug, habitNames)} · {habit.state} ·{" "}
+                  {habit.frequencyPerWeek}×/week
+                </li>
+              ))}
+            </ul>
             <div className="mt-6">
-              <SectionLabel>Training</SectionLabel>
+              <SectionLabel>Metrics</SectionLabel>
             </div>
-              <p className="text-text-hi mt-2 text-sm">{plan.training.templateKey}</p>
-            </>
-          )}
-        </Card>
+            <ul className="mt-3 space-y-2">
+              {plan.metrics.map((metric) => (
+                <li key={metric.slug} className="text-text-hi text-sm">
+                  {metricLabel(metric.slug, metricNames)}
+                </li>
+              ))}
+            </ul>
+            {plan.training && (
+              <>
+                <div className="mt-6">
+                  <SectionLabel>Training</SectionLabel>
+                </div>
+                <p className="text-text-hi mt-2 text-sm">{plan.training.templateKey}</p>
+              </>
+            )}
+          </Card>
         </div>
         {error && <p className="text-negative text-sm">{error}</p>}
         <Button
@@ -112,14 +134,14 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
       <div className="mx-auto max-w-lg space-y-6">
         <div>
           <h1 className="text-text-hi text-xl font-semibold">{ONBOARDING_COPY.intakeTitle}</h1>
-          <p className="text-text-mid mt-2 text-sm">{ONBOARDING_COPY.barriersTitle}</p>
+          <p className="text-text-mid mt-2 text-sm">{ONBOARDING_COPY.intakeSubtitle}</p>
         </div>
         <Card>
           <SectionLabel>Barriers</SectionLabel>
           <ul className="mt-3 space-y-4">
             {ONBOARDING_BARRIERS.map((code) => (
               <li key={code}>
-                <label className="text-text-hi text-sm">{formatCode(code)}</label>
+                <label className="text-text-hi text-sm">{INTAKE_BARRIER_QUESTIONS[code]}</label>
                 <NumberField
                   className="mt-1"
                   min={0}
@@ -132,6 +154,7 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
                     }))
                   }
                 />
+                <p className="text-text-low mt-1 text-xs">{ONBOARDING_COPY.barrierScaleHint}</p>
               </li>
             ))}
           </ul>
@@ -141,7 +164,7 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
           <ul className="mt-3 space-y-4">
             {ONBOARDING_MOTIVATORS.map((code) => (
               <li key={code}>
-                <label className="text-text-hi text-sm">{formatCode(code)}</label>
+                <label className="text-text-hi text-sm">{INTAKE_MOTIVATOR_QUESTIONS[code]}</label>
                 <NumberField
                   className="mt-1"
                   min={0}
@@ -154,6 +177,7 @@ export function OnboardingFlow({ step, goals: initialGoals, plan }: Props) {
                     }))
                   }
                 />
+                <p className="text-text-low mt-1 text-xs">{ONBOARDING_COPY.motivatorScaleHint}</p>
               </li>
             ))}
           </ul>
