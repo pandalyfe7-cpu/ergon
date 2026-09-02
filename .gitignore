@@ -37,6 +37,12 @@ yarn-error.log*
 .env*
 !.env.example
 
+# cursor rules (local only)
+.cursor/rules/
+
+# owner medical / personal constraint seed (use seed/example.sql in git)
+seed/personal.sql
+
 # vercel
 .vercel
 
