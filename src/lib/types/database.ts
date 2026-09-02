@@ -30,6 +30,7 @@ import type {
   UserGoal,
   UserMotivator,
   IntakeScore,
+  MetricLog,
   UserProfile,
   UserSettings,
   WaterLog,
@@ -111,7 +112,7 @@ export type Database = {
         | "sort_order"
         | "seed_version"
       >;
-      habit_events: Table<HabitEvent, "from_state" | "to_state" | "note">;
+      habit_events: Table<HabitEvent, "from_state" | "to_state" | "note" | "rule_id" | "rule_version" | "trace">;
       metric_definitions: Table<MetricDefinition, "sort_order" | "seed_version">;
       morning_entries: Table<MorningEntry, "bed_time" | "time_available_min">;
       recommendations: Table<
@@ -135,6 +136,7 @@ export type Database = {
       user_barriers: Table<UserBarrier, "note">;
       user_motivators: Table<UserMotivator, "note">;
       intake_scores: Table<IntakeScore, "trace">;
+      metric_logs: Table<MetricLog, "trace">;
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

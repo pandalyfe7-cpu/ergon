@@ -309,6 +309,19 @@ export type HabitEvent = Owned & {
   from_state: HabitState | null;
   to_state: HabitState | null;
   note: string | null;
+  rule_id: string | null;
+  rule_version: string | null;
+  trace: TraceEntry[] | null;
+  created_at: Timestamp;
+};
+
+export type MetricLog = Owned & {
+  metric_slug: string;
+  log_date: string;
+  value: number;
+  rule_id: string;
+  rule_version: string;
+  trace: TraceEntry[];
   created_at: Timestamp;
 };
 

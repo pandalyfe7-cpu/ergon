@@ -150,3 +150,44 @@ export async function getStoredPlanHabitCount(userId: string): Promise<number> {
   );
   return rows[0]?.capacity?.plan?.habits?.length ?? 0;
 }
+
+const TODAY_PLAN = {
+  habits: [{ slug: "study-blocks", state: "build", frequencyPerWeek: 7 }],
+  metrics: [{ slug: "protein" }],
+  training: null,
+  rule_id: "plan_generate",
+  rule_version: "1.0.0",
+  trace: [],
+};
+
+/** Ensures the E2E user has a minimal Today plan (study-blocks + protein). */
+export async function ensureTodayPlan(userId: string): Promise<void> {
+  await query(
+    `insert into public.user_profile (user_id, onboarding_step, capacity, updated_at)
+     values ($1, 4, $2::jsonb, now())
+     on conflict (user_id) do update
+       set capacity = excluded.capacity,
+           onboarding_step = excluded.onboarding_step,
+           updated_at = now()`,
+    [userId, JSON.stringify({ plan: TODAY_PLAN })],
+  );
+}
+
+/** Clears today's habit marks and metric logs for repeatable Today e2e. */
+export async function clearTodayLogs(userId: string): Promise<void> {
+  await query(
+    `delete from public.habit_events he
+      using public.habits h
+     where he.habit_id = h.id
+       and he.user_id = $1
+       and h.slug = 'study-blocks'
+       and he.event_type in ('completed', 'floor')`,
+    [userId],
+  );
+  await query(
+    `delete from public.metric_logs
+      where user_id = $1
+        and metric_slug = 'protein'`,
+    [userId],
+  );
+}

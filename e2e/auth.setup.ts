@@ -4,7 +4,7 @@ import { join } from "node:path";
 
 import { expect, test as setup } from "@playwright/test";
 
-import { ensureAuthUser, setOnboardingStep } from "./db";
+import { ensureAuthUser, ensureTodayPlan, setOnboardingStep } from "./db";
 import { E2E_EMAIL, E2E_PASSWORD } from "./env";
 
 const AUTH_FILE = join(__dirname, ".auth", "user.json");
@@ -20,6 +20,7 @@ setup("provision, seed, and sign in the E2E user", async ({ page }) => {
   });
 
   await setOnboardingStep(userId, 4);
+  await ensureTodayPlan(userId);
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(E2E_EMAIL);
